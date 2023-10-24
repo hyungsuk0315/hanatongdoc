@@ -3,7 +3,9 @@ import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:starter_architecture_flutter_firebase/src/features/read/presentation/utils.dart';
+import '../../../common_widgets/action_text_button.dart';
 import '../../../constants/strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -104,11 +106,56 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     return Scaffold(
       body:
-          Column(
-            children: [
-              TextButton(
-                child:Text('read'),
-                onPressed: (){
+        Column(
+          children: [
+            TableCalendar<Event>(
+                  rowHeight: 40,
+                  daysOfWeekHeight: 19,
+                  calendarStyle: CalendarStyle(
+                      isTodayHighlighted:false,
+                      markerDecoration: const BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
+                      selectedDecoration: const BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
+                  ),
+                  firstDay: kFirstDay,
+                  lastDay: kLastDay,
+                  focusedDay: _focusedDay,
+                  eventLoader: (day) {
+                    if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
+                      return [Event('Cyclic event')];
+                    }
+                    return [];
+                  },
+                  calendarFormat: _calendarFormat,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  selectedDayPredicate: (day) {
+                    // Use values from Set to mark multiple days as selected
+                    return _selectedDays.contains(day);
+                  },
+                  onDaySelected: _onDaySelected,
+                  onFormatChanged: (format) {
+                    if (_calendarFormat != format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    }
+                  },
+                  onPageChanged: (focusedDay) {
+                    _focusedDay = focusedDay;
+                  },
+                ),
+            SizedBox(height: 30,),
+
+            Text(
+                  DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
+                  style: const TextStyle(fontSize: 16.0, color: Colors.green),
+                ),
+            Text(
+                  _bibleList,
+                  style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                ),
+            TextButton(
+                  child:Text('read'),
+                  onPressed: (){
                     setState(() {
                       _readDays.add(_focusedDay);
                       _selectedDays.clear();
@@ -116,43 +163,12 @@ class _CalendarState extends State<Calendar> {
                       print(_readDays);
                     });
                   },
-              ),
-              TableCalendar<Event>(
-                calendarStyle: CalendarStyle(
-                  isTodayHighlighted:false,
-                  markerDecoration: const BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
-                  selectedDecoration: const BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
                 ),
-                firstDay: kFirstDay,
-                lastDay: kLastDay,
-                focusedDay: _focusedDay,
-                eventLoader: (day) {
-                  if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
-                    return [Event('Cyclic event')];
-                  }
-                  return [];
-                },
-                calendarFormat: _calendarFormat,
-                startingDayOfWeek: StartingDayOfWeek.monday,
-                selectedDayPredicate: (day) {
-                  // Use values from Set to mark multiple days as selected
-                  return _selectedDays.contains(day);
-                },
-                onDaySelected: _onDaySelected,
-                onFormatChanged: (format) {
-                  if (_calendarFormat != format) {
-                    setState(() {
-                      _calendarFormat = format;
-                    });
-                  }
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
-                },
-              ),
-              Text(_bibleList)
-            ],
-          ),
+            
+          ],
+        ),
+
+
     );
   }
 }
