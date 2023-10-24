@@ -84,6 +84,7 @@ GoRouter goRouter(GoRouterRef ref) {
         path: '/signIn',
         name: AppRoute.signIn.name,
         pageBuilder: (context, state) => const NoTransitionPage(
+
           child: CustomSignInScreen(),
         ),
       ),

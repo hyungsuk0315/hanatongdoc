@@ -14,7 +14,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = 1
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
@@ -25,6 +25,9 @@ if (flutterVersionName == null) {
 android {
     namespace "com.example.starter_architecture_flutter_firebase"
     compileSdkVersion flutter.compileSdkVersion
+    if(compileSdkVersion == null){
+        compileSdkVersion = 33
+    }
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -45,9 +48,15 @@ android {
         applicationId "com.example.starter_architecture_flutter_firebase"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion localProperties.getProperty('flutter.minSdkVersion').toInteger()
-        targetSdkVersion localProperties.getProperty('flutter.targetSdkVersion').toInteger()
-        versionCode flutterVersionCode.toInteger()
+        minSdkVersion localProperties.getProperty('flutter.minSdkVersion')
+        if(minSdkVersion == null){
+            minSdkVersion = 23
+        }
+        targetSdkVersion localProperties.getProperty('flutter.targetSdkVersion')
+        if(targetSdkVersion == null){
+            targetSdkVersion = 33
+        }
+        versionCode flutterVersionCode
         versionName flutterVersionName
     }
 
