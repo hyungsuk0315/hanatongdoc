@@ -16,6 +16,8 @@ class Strings {
   static const String or = 'or';
   static const String signInFailed = 'Sign in failed';
 
+  static const String read = "하나통독";
+
   // Home page
   static const String homePage = 'Home Page';
 

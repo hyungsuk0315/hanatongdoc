@@ -28,6 +28,8 @@ dependencies:
   firebase_ui_localizations: ^1.7.1
   firebase_ui_oauth_google: ^1.2.13
   google_sign_in: ^6.1.5
+  calendar_date_picker2: ^0.5.3
+  table_calendar: ^3.0.9
 
 dev_dependencies:
   flutter_test:
@@ -48,3 +50,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/time-tracking.svg
+    - assets/images/logo.png
+    - assets/json/bible-RNKSV.json

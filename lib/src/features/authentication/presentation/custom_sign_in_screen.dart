@@ -7,6 +7,7 @@ import 'package:starter_architecture_flutter_firebase/src/constants/app_sizes.da
 import 'package:starter_architecture_flutter_firebase/src/features/authentication/data/firebase_auth_repository.dart';
 
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
+import '../../../common_widgets/action_text_button.dart';
 import 'auth_providers.dart';
 
 class CustomSignInScreen extends ConsumerWidget {
@@ -29,25 +30,8 @@ class CustomSignInScreen extends ConsumerWidget {
 
 class SignInAnonymouslyFooter extends ConsumerWidget {
   const SignInAnonymouslyFooter({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future<UserCredential> signInWithGoogle() async {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-
-      // Once signed in, return the UserCredential
-      return await FirebaseAuth.instance.signInWithCredential(credential);
-    }
     return Column(
       children: [
         gapH8,
@@ -64,10 +48,6 @@ class SignInAnonymouslyFooter extends ConsumerWidget {
         TextButton(
           onPressed: () => ref.read(firebaseAuthProvider).signInAnonymously(),
           child: const Text('Sign in anonymously'),
-        ),
-        TextButton(
-          onPressed: () => signInWithGoogle(),
-          child: const Text('Sign in Google'),
         ),
       ],
     );

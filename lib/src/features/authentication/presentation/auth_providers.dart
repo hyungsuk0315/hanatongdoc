@@ -11,6 +11,5 @@ List<AuthProvider<AuthListener, AuthCredential>> authProviders(
   return [
     EmailAuthProvider(),
     GoogleProvider(clientId: GOOGLE_CLIENT_ID),
-
   ];
 }

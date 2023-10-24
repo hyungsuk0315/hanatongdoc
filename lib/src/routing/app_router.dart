@@ -16,6 +16,8 @@ import 'package:starter_architecture_flutter_firebase/src/features/onboarding/pr
 import 'package:starter_architecture_flutter_firebase/src/routing/go_router_refresh_stream.dart';
 import 'package:starter_architecture_flutter_firebase/src/routing/scaffold_with_nested_navigation.dart';
 
+import '../features/read/presentation/read_screen.dart';
+
 part 'app_router.g.dart';
 
 // private navigators
@@ -23,8 +25,10 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _jobsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'jobs');
 final _entriesNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'entries');
 final _accountNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'account');
+final _readNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'read');
 
 enum AppRoute {
+  read,
   onboarding,
   signIn,
   jobs,
@@ -60,7 +64,7 @@ GoRouter goRouter(GoRouterRef ref) {
       final isLoggedIn = authRepository.currentUser != null;
       if (isLoggedIn) {
         if (path.startsWith('/signIn')) {
-          return '/jobs';
+          return '/read';
         }
       } else {
         if (path.startsWith('/jobs') ||
@@ -96,13 +100,13 @@ GoRouter goRouter(GoRouterRef ref) {
         },
         branches: [
           StatefulShellBranch(
-            navigatorKey: _jobsNavigatorKey,
+            navigatorKey: _readNavigatorKey,
             routes: [
               GoRoute(
-                path: '/jobs',
-                name: AppRoute.jobs.name,
+                path: '/read',
+                name: AppRoute.read.name,
                 pageBuilder: (context, state) => const NoTransitionPage(
-                  child: JobsScreen(),
+                  child: ReadScreen(),
                 ),
                 routes: [
                   GoRoute(
@@ -174,6 +178,7 @@ GoRouter goRouter(GoRouterRef ref) {
               ),
             ],
           ),
+
           StatefulShellBranch(
             navigatorKey: _entriesNavigatorKey,
             routes: [

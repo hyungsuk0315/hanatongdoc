@@ -62,10 +62,16 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
         selectedIndex: currentIndex,
         destinations: [
           // products
+          // NavigationDestination(
+          //   icon: const Icon(Icons.work_outline),
+          //   selectedIcon: const Icon(Icons.work),
+          //   label: 'Jobs'.hardcoded,
+          // ),
+          // products
           NavigationDestination(
             icon: const Icon(Icons.work_outline),
-            selectedIcon: const Icon(Icons.work),
-            label: 'Jobs'.hardcoded,
+            selectedIcon: const Icon(Icons.book),
+            label: 'Read'.hardcoded,
           ),
           NavigationDestination(
             icon: const Icon(Icons.view_headline_outlined),
@@ -107,8 +113,8 @@ class ScaffoldWithNavigationRail extends StatelessWidget {
             destinations: <NavigationRailDestination>[
               NavigationRailDestination(
                 icon: const Icon(Icons.work_outline),
-                selectedIcon: const Icon(Icons.work),
-                label: Text('Jobs'.hardcoded),
+                selectedIcon: const Icon(Icons.book),
+                label: Text('Read'.hardcoded),
               ),
               NavigationRailDestination(
                 icon: const Icon(Icons.view_headline_outlined),
