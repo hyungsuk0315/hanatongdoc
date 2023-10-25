@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:intl/intl.dart';
@@ -56,7 +57,7 @@ class _CalendarState extends State<Calendar> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   String _bibleList = 'test';
-
+  late List<dynamic> _bibleContents;
   @override
   void dispose() {
     _selectedEvents.dispose();
@@ -87,17 +88,12 @@ class _CalendarState extends State<Calendar> {
       Map<String, dynamic> _bibleJson = json.decode(reponse);
       String bibleList = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["chapter"];
       _bibleList = bibleList;
-
+      _bibleContents = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["contents"];
     });
     print(_bibleList);
-    print('init');
     super.didUpdateWidget(oldWidget);
   }
 
-  int setBibleList(){
-
-    return 1;
-  }
   Future<String> getBibleList (DateTime day) async {
     print("getBibleList" + "m"+day.month.toString() + "d" + day.day.toString());
     final jsonString = await rootBundle.loadString('assets/json/bible-RNKSV.json');
@@ -105,6 +101,7 @@ class _CalendarState extends State<Calendar> {
     String bibleList = _bibleJson["m"+day.month.toString() + "d" + day.day.toString()]["chapter"];
     //setState(() { _bibleList = bibleList; }) ;
     _bibleList = bibleList;
+    _bibleContents = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["contents"];
     print('2');
     return _bibleList;
   }
@@ -129,16 +126,9 @@ class _CalendarState extends State<Calendar> {
     getBibleList(_focusedDay);
     _selectedEvents.value = _getEventsForDays(_selectedDays);
   }
-
-
-  @override
-  Widget build(BuildContext context) {
-
-    final Color kDarkBlueColor = const Color(0xFF053149);
-    print(_bibleList);
-
-    return Scaffold(
-      body: Card(
+  List<Widget> getBiblePageList(){
+    final List<Widget> biblePageList= [
+      Container(
         child: Column(
           children: [
             Card(
@@ -267,6 +257,40 @@ class _CalendarState extends State<Calendar> {
 
           ],
         ),
+      ),
+
+    ];
+    List<Widget> bibleScript = _bibleContents.map((item) =>
+        Container(
+          child: Column(
+            children: [
+              Text(item["chapter_name"]),
+            ],
+          ),
+        )
+    ).toList();
+    biblePageList.addAll(bibleScript);
+    return biblePageList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final Color kDarkBlueColor = const Color(0xFF053149);
+    print(_bibleList);
+
+    final double height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      body: Card(
+        child: CarouselSlider(
+          options: CarouselOptions(
+            height: height,
+            viewportFraction: 1.0,
+            enlargeCenterPage: false,
+            // autoPlay: false,
+          ),
+          items: getBiblePageList()
+        )
       ),
     );
   }
