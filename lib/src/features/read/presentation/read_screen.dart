@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -129,144 +131,143 @@ class _CalendarState extends State<Calendar> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
 
+    final Color kDarkBlueColor = const Color(0xFF053149);
     print(_bibleList);
 
     return Scaffold(
-      body:
-          Card(
-            child: Column(
-              children: [
-                Card(
-                  margin: EdgeInsets.all(0),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      color: Colors.grey, //<-- SEE HERE
-                    ),  //모서리를 둥글게 하기 위해 사용
-                    borderRadius: BorderRadius.circular(16.0),
+      body: Card(
+        child: Column(
+          children: [
+            Card(
+              margin: EdgeInsets.all(0),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  color: Colors.grey, //<-- SEE HERE
+                ),  //모서리를 둥글게 하기 위해 사용
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              child : TableCalendar<Event>(
+                sixWeekMonthsEnforced : true,
+                // 추가
+                headerStyle: HeaderStyle(
+                  titleCentered: true,
+                  titleTextFormatter: (date, locale) =>
+                      DateFormat.yMMMM(locale).format(date),
+                  formatButtonVisible: false,
+                  titleTextStyle: const TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.cyan,
                   ),
-                  child : TableCalendar<Event>(
-                    sixWeekMonthsEnforced : true,
-                    // 추가
-                    headerStyle: HeaderStyle(
-                      titleCentered: true,
-                      titleTextFormatter: (date, locale) =>
-                          DateFormat.yMMMM(locale).format(date),
-                      formatButtonVisible: false,
-                      titleTextStyle: const TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.cyan,
-                      ),
-                      headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
-                      leftChevronIcon: const Icon(
-                        Icons.arrow_left,
-                        size: 40.0,
-                      ),
-                      rightChevronIcon: const Icon(
-                        Icons.arrow_right,
-                        size: 40.0,
-                      ),
-                    ),
-                    locale: 'ko_KR',
-                    rowHeight: 40,
-                    daysOfWeekHeight: 19,
-                    calendarStyle: const CalendarStyle(
-                        isTodayHighlighted:false,
-                        markerDecoration: BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
-                        selectedDecoration: BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
-                    ),
-                    firstDay: kFirstDay,
-                    lastDay: kLastDay,
-                    focusedDay: _focusedDay,
-                    eventLoader: (day) {
-                      if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
-                        return [const Event('Cyclic event')];
-                      }
-                      return [];
-                    },
-                    calendarFormat: _calendarFormat,
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    selectedDayPredicate: (day) {
-                      // Use values from Set to mark multiple days as selected
-                      return _selectedDays.contains(day);
-                    },
-                    onDaySelected: _onDaySelected,
-                    onFormatChanged: (format) {
-                      if (_calendarFormat != format) {
-                        setState(() {
-                          _calendarFormat = format;
-                        });
-                      }
-                    },
-                    onPageChanged: (focusedDay) {
-                      _focusedDay = focusedDay;
-                    },
+                  headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
+                  leftChevronIcon: const Icon(
+                    Icons.arrow_left,
+                    size: 40.0,
+                  ),
+                  rightChevronIcon: const Icon(
+                    Icons.arrow_right,
+                    size: 40.0,
                   ),
                 ),
-                SizedBox(height: 10,),
-                Card(
-
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      width: 3,
-                      color: Colors.deepPurple, //<-- SEE HERE
-                    ),
-                    borderRadius: BorderRadius.circular(20.0),
-
-                  ),
-                  margin: EdgeInsets.all(0),
-                  child: Container(
-
-                    padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
-                    width:double.infinity,
-                    child: Column(
-                      children: [
-                        Text(
-                          DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
-                          style: const TextStyle(fontSize: 16.0, color: Colors.green),
-                        ),
-                        FutureBuilder(
-                            future: getBibleList(_focusedDay),
-                            builder: (BuildContext context, AsyncSnapshot snapshot) {
-                              if(snapshot.hasData == false){
-                                return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
-                              }
-                              else{
-                                return Text(
-                                  snapshot.data.toString(),
-                                  style: const TextStyle(fontSize: 24.0, color: Colors.green),
-                                );
-                              }
-                            }
-                        ),
-                        Container(
-
-                          child: TextButton(
-                            child:Text('읽으러가기'),
-                            onPressed: (){
-                              setState(() {
-                                _readDays.add(_focusedDay);
-                                _selectedDays.clear();
-                                _readDays.forEach((element) {_selectedDays.add(element);});
-                              });
-                            },
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
-
+                locale: 'ko_KR',
+                rowHeight: 40,
+                daysOfWeekHeight: 19,
+                calendarStyle: const CalendarStyle(
+                    isTodayHighlighted:false,
+                    markerDecoration: BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
+                    selectedDecoration: BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
                 ),
-
-
-
-              ],
+                firstDay: kFirstDay,
+                lastDay: kLastDay,
+                focusedDay: _focusedDay,
+                eventLoader: (day) {
+                  if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
+                    return [const Event('Cyclic event')];
+                  }
+                  return [];
+                },
+                calendarFormat: _calendarFormat,
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                selectedDayPredicate: (day) {
+                  // Use values from Set to mark multiple days as selected
+                  return _selectedDays.contains(day);
+                },
+                onDaySelected: _onDaySelected,
+                onFormatChanged: (format) {
+                  if (_calendarFormat != format) {
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  }
+                },
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                },
+              ),
             ),
-          ),
+            SizedBox(height: 10,),
+            Card(
+
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  width: 3,
+                  color: Colors.deepPurple, //<-- SEE HERE
+                ),
+                borderRadius: BorderRadius.circular(20.0),
+
+              ),
+              margin: EdgeInsets.all(0),
+              child: Container(
+
+                padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
+                width:double.infinity,
+                child: Column(
+                  children: [
+                    Text(
+                      DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
+                      style: const TextStyle(fontSize: 16.0, color: Colors.green),
+                    ),
+                    FutureBuilder(
+                        future: getBibleList(_focusedDay),
+                        builder: (BuildContext context, AsyncSnapshot snapshot) {
+                          if(snapshot.hasData == false){
+                            return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
+                          }
+                          else{
+                            return Text(
+                              snapshot.data.toString(),
+                              style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                            );
+                          }
+                        }
+                    ),
+                    Container(
+
+                      child: TextButton(
+                        child:Text('읽으러가기'),
+                        onPressed: (){
+                          setState(() {
+                            _readDays.add(_focusedDay);
+                            _selectedDays.clear();
+                            _readDays.forEach((element) {_selectedDays.add(element);});
+                          });
+                        },
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+
+            ),
+
+
+
+          ],
+        ),
+      ),
     );
   }
 }
