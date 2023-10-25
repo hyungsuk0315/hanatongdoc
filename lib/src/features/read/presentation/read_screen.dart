@@ -1,6 +1,9 @@
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -38,6 +41,7 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
+
   final ValueNotifier<List<Event>> _selectedEvents = ValueNotifier([]);
   final Set<DateTime> _selectedDays = LinkedHashSet<DateTime>(
     equals: isSameDay,
@@ -49,26 +53,48 @@ class _CalendarState extends State<Calendar> {
   );
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  String _bibleList = "test";
+  String _bibleList = 'test';
 
   @override
   void dispose() {
     _selectedEvents.dispose();
     super.dispose();
   }
-  @override
-  Calendar(){
 
+  @override
+  void initState() {
+    // TODO: implement initState
+
+
+    super.initState();
   }
 
-  Future<String> getBibleList (DateTime day) async {
-    print('something');
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+
+    super.setState(fn);
+  }
+
+  @override
+  void didUpdateWidget(covariant Calendar oldWidget) {
+    // TODO: implement didUpdateWidget
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  int setBibleList(){
+
+    return 1;
+  }
+  Future<void> getBibleList (DateTime day) async {
+    print('1');
     final jsonString = await rootBundle.loadString('assets/json/bible-RNKSV.json');
     Map<String, dynamic> _bibleJson = json.decode(jsonString);
     String bibleList = _bibleJson["m"+day.month.toString() + "d" + day.day.toString()]["chapter"];
-    print(bibleList);
+    //setState(() { _bibleList = bibleList; }) ;
     _bibleList = bibleList;
-    return bibleList;
+    print('2');
   }
   List<Event> _getEventsForDay(DateTime day) {
     // Implementation example
@@ -86,16 +112,7 @@ class _CalendarState extends State<Calendar> {
       _focusedDay = focusedDay;
       _selectedDays.clear();
       _readDays.forEach((element) {_selectedDays.add(element);});
-      getBibleList(focusedDay);
 
-      print(_readDays);
-      //_selectedDays = _readDays;
-      // Update values in a Set
-      // if (_selectedDays.contains(selectedDay)) {
-      //   _selectedDays.remove(selectedDay);
-      // } else {
-      //   _selectedDays.add(selectedDay);
-      // }
     });
     _selectedEvents.value = _getEventsForDays(_selectedDays);
   }
@@ -104,73 +121,134 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+
+    print(_bibleList);
+
     return Scaffold(
       body:
-        Column(
-          children: [
-            TableCalendar<Event>(
-                  rowHeight: 40,
-                  daysOfWeekHeight: 19,
-                  calendarStyle: CalendarStyle(
-                      isTodayHighlighted:false,
-                      markerDecoration: const BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
-                      selectedDecoration: const BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
+          Card(
+            child: Column(
+              children: [
+                Card(
+                  margin: EdgeInsets.all(0),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: Colors.grey, //<-- SEE HERE
+                    ),  //모서리를 둥글게 하기 위해 사용
+                    borderRadius: BorderRadius.circular(16.0),
                   ),
-                  firstDay: kFirstDay,
-                  lastDay: kLastDay,
-                  focusedDay: _focusedDay,
-                  eventLoader: (day) {
-                    if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
-                      return [Event('Cyclic event')];
-                    }
-                    return [];
-                  },
-                  calendarFormat: _calendarFormat,
-                  startingDayOfWeek: StartingDayOfWeek.monday,
-                  selectedDayPredicate: (day) {
-                    // Use values from Set to mark multiple days as selected
-                    return _selectedDays.contains(day);
-                  },
-                  onDaySelected: _onDaySelected,
-                  onFormatChanged: (format) {
-                    if (_calendarFormat != format) {
-                      setState(() {
-                        _calendarFormat = format;
-                      });
-                    }
-                  },
-                  onPageChanged: (focusedDay) {
-                    _focusedDay = focusedDay;
-                  },
+                  child : TableCalendar<Event>(
+                    sixWeekMonthsEnforced : true,
+                    // 추가
+                    headerStyle: HeaderStyle(
+                      titleCentered: true,
+                      titleTextFormatter: (date, locale) =>
+                          DateFormat.yMMMM(locale).format(date),
+                      formatButtonVisible: false,
+                      titleTextStyle: const TextStyle(
+                        fontSize: 20.0,
+                        color: Colors.cyan,
+                      ),
+                      headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
+                      leftChevronIcon: const Icon(
+                        Icons.arrow_left,
+                        size: 40.0,
+                      ),
+                      rightChevronIcon: const Icon(
+                        Icons.arrow_right,
+                        size: 40.0,
+                      ),
+                    ),
+                    locale: 'ko_KR',
+                    rowHeight: 40,
+                    daysOfWeekHeight: 19,
+                    calendarStyle: const CalendarStyle(
+                        isTodayHighlighted:false,
+                        markerDecoration: BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
+                        selectedDecoration: BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
+                    ),
+                    firstDay: kFirstDay,
+                    lastDay: kLastDay,
+                    focusedDay: _focusedDay,
+                    eventLoader: (day) {
+                      if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
+                        getBibleList(_focusedDay);
+                        return [const Event('Cyclic event')];
+                      }
+                      return [];
+                    },
+                    calendarFormat: _calendarFormat,
+                    startingDayOfWeek: StartingDayOfWeek.monday,
+                    selectedDayPredicate: (day) {
+                      // Use values from Set to mark multiple days as selected
+                      return _selectedDays.contains(day);
+                    },
+                    onDaySelected: _onDaySelected,
+                    onFormatChanged: (format) {
+                      if (_calendarFormat != format) {
+                        setState(() {
+                          _calendarFormat = format;
+                        });
+                      }
+                    },
+                    onPageChanged: (focusedDay) {
+                      _focusedDay = focusedDay;
+                    },
+                  ),
                 ),
-            SizedBox(height: 30,),
+                SizedBox(height: 10,),
+                Card(
 
-            Text(
-                  DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
-                  style: const TextStyle(fontSize: 16.0, color: Colors.green),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      width: 3,
+                      color: Colors.deepPurple, //<-- SEE HERE
+                    ),
+                    borderRadius: BorderRadius.circular(20.0),
+
+                  ),
+                  margin: EdgeInsets.all(0),
+                  child: Container(
+
+                    padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                    width:double.infinity,
+                    child: Column(
+                      children: [
+                        Text(
+                          DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
+                          style: const TextStyle(fontSize: 16.0, color: Colors.green),
+                        ),
+                        Text(
+                          _bibleList,
+                          style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                        ),
+                        Container(
+
+                          child: TextButton(
+                            child:Text('읽으러가기'),
+                            onPressed: (){
+                              setState(() {
+                                _readDays.add(_focusedDay);
+                                _selectedDays.clear();
+                                _readDays.forEach((element) {_selectedDays.add(element);});
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 ),
-            Text(
-                  _bibleList,
-                  style: const TextStyle(fontSize: 24.0, color: Colors.green),
-                ),
-            TextButton(
-                  child:Text('read'),
-                  onPressed: (){
-                    setState(() {
-                      _readDays.add(_focusedDay);
-                      _selectedDays.clear();
-                      _readDays.forEach((element) {_selectedDays.add(element);});
-                      print(_readDays);
-                    });
-                  },
-                ),
-            
-          ],
-        ),
 
 
+
+              ],
+            ),
+          ),
     );
   }
 }
+
 
 

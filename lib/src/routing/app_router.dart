@@ -66,7 +66,8 @@ GoRouter goRouter(GoRouterRef ref) {
         if (path.startsWith('/signIn')) {
           return '/read';
         }
-      } else {
+      }
+      else {
         if (path.startsWith('/jobs') ||
             path.startsWith('/entries') ||
             path.startsWith('/account')) {
@@ -109,71 +110,71 @@ GoRouter goRouter(GoRouterRef ref) {
                   child: ReadScreen(),
                 ),
                 routes: [
-                  GoRoute(
-                    path: 'add',
-                    name: AppRoute.addJob.name,
-                    parentNavigatorKey: _rootNavigatorKey,
-                    pageBuilder: (context, state) {
-                      return const MaterialPage(
-                        fullscreenDialog: true,
-                        child: EditJobScreen(),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: ':id',
-                    name: AppRoute.job.name,
-                    pageBuilder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      return MaterialPage(
-                        child: JobEntriesScreen(jobId: id),
-                      );
-                    },
-                    routes: [
-                      GoRoute(
-                        path: 'entries/add',
-                        name: AppRoute.addEntry.name,
-                        parentNavigatorKey: _rootNavigatorKey,
-                        pageBuilder: (context, state) {
-                          final jobId = state.pathParameters['id']!;
-                          return MaterialPage(
-                            fullscreenDialog: true,
-                            child: EntryScreen(
-                              jobId: jobId,
-                            ),
-                          );
-                        },
-                      ),
-                      GoRoute(
-                        path: 'entries/:eid',
-                        name: AppRoute.entry.name,
-                        pageBuilder: (context, state) {
-                          final jobId = state.pathParameters['id']!;
-                          final entryId = state.pathParameters['eid']!;
-                          final entry = state.extra as Entry?;
-                          return MaterialPage(
-                            child: EntryScreen(
-                              jobId: jobId,
-                              entryId: entryId,
-                              entry: entry,
-                            ),
-                          );
-                        },
-                      ),
-                      GoRoute(
-                        path: 'edit',
-                        name: AppRoute.editJob.name,
-                        pageBuilder: (context, state) {
-                          final jobId = state.pathParameters['id'];
-                          final job = state.extra as Job?;
-                          return MaterialPage(
-                            fullscreenDialog: true,
-                            child: EditJobScreen(jobId: jobId, job: job),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  // GoRoute(
+                  //   path: 'add',
+                  //   name: AppRoute.addJob.name,
+                  //   parentNavigatorKey: _rootNavigatorKey,
+                  //   pageBuilder: (context, state) {
+                  //     return const MaterialPage(
+                  //       fullscreenDialog: true,
+                  //       child: EditJobScreen(),
+                  //     );
+                  //   },
+                  // ),
+                  // GoRoute(
+                  //   path: ':id',
+                  //   name: AppRoute.job.name,
+                  //   pageBuilder: (context, state) {
+                  //     final id = state.pathParameters['id']!;
+                  //     return MaterialPage(
+                  //       child: JobEntriesScreen(jobId: id),
+                  //     );
+                  //   },
+                  //   routes: [
+                  //     GoRoute(
+                  //       path: 'entries/add',
+                  //       name: AppRoute.addEntry.name,
+                  //       parentNavigatorKey: _rootNavigatorKey,
+                  //       pageBuilder: (context, state) {
+                  //         final jobId = state.pathParameters['id']!;
+                  //         return MaterialPage(
+                  //           fullscreenDialog: true,
+                  //           child: EntryScreen(
+                  //             jobId: jobId,
+                  //           ),
+                  //         );
+                  //       },
+                  //     ),
+                  //     GoRoute(
+                  //       path: 'entries/:eid',
+                  //       name: AppRoute.entry.name,
+                  //       pageBuilder: (context, state) {
+                  //         final jobId = state.pathParameters['id']!;
+                  //         final entryId = state.pathParameters['eid']!;
+                  //         final entry = state.extra as Entry?;
+                  //         return MaterialPage(
+                  //           child: EntryScreen(
+                  //             jobId: jobId,
+                  //             entryId: entryId,
+                  //             entry: entry,
+                  //           ),
+                  //         );
+                  //       },
+                  //     ),
+                  //     GoRoute(
+                  //       path: 'edit',
+                  //       name: AppRoute.editJob.name,
+                  //       pageBuilder: (context, state) {
+                  //         final jobId = state.pathParameters['id'];
+                  //         final job = state.extra as Job?;
+                  //         return MaterialPage(
+                  //           fullscreenDialog: true,
+                  //           child: EditJobScreen(jobId: jobId, job: job),
+                  //         );
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ],
