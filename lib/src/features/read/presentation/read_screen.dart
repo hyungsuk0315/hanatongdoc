@@ -64,9 +64,8 @@ class _CalendarState extends State<Calendar> {
   @override
   void initState() {
     // TODO: implement initState
-
-
     super.initState();
+
   }
 
   @override
@@ -76,10 +75,20 @@ class _CalendarState extends State<Calendar> {
     super.setState(fn);
   }
 
+
   @override
   void didUpdateWidget(covariant Calendar oldWidget) {
     // TODO: implement didUpdateWidget
 
+    print('init');
+    rootBundle.loadString('assets/json/bible-RNKSV.json').then((reponse){
+      Map<String, dynamic> _bibleJson = json.decode(reponse);
+      String bibleList = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["chapter"];
+      _bibleList = bibleList;
+
+    });
+    print(_bibleList);
+    print('init');
     super.didUpdateWidget(oldWidget);
   }
 
@@ -87,14 +96,15 @@ class _CalendarState extends State<Calendar> {
 
     return 1;
   }
-  Future<void> getBibleList (DateTime day) async {
-    print('1');
+  Future<String> getBibleList (DateTime day) async {
+    print("getBibleList" + "m"+day.month.toString() + "d" + day.day.toString());
     final jsonString = await rootBundle.loadString('assets/json/bible-RNKSV.json');
     Map<String, dynamic> _bibleJson = json.decode(jsonString);
     String bibleList = _bibleJson["m"+day.month.toString() + "d" + day.day.toString()]["chapter"];
     //setState(() { _bibleList = bibleList; }) ;
     _bibleList = bibleList;
     print('2');
+    return _bibleList;
   }
   List<Event> _getEventsForDay(DateTime day) {
     // Implementation example
@@ -114,6 +124,7 @@ class _CalendarState extends State<Calendar> {
       _readDays.forEach((element) {_selectedDays.add(element);});
 
     });
+    getBibleList(_focusedDay);
     _selectedEvents.value = _getEventsForDays(_selectedDays);
   }
 
@@ -172,7 +183,6 @@ class _CalendarState extends State<Calendar> {
                     focusedDay: _focusedDay,
                     eventLoader: (day) {
                       if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
-                        getBibleList(_focusedDay);
                         return [const Event('Cyclic event')];
                       }
                       return [];
@@ -210,7 +220,7 @@ class _CalendarState extends State<Calendar> {
                   margin: EdgeInsets.all(0),
                   child: Container(
 
-                    padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                    padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
                     width:double.infinity,
                     child: Column(
                       children: [
@@ -218,9 +228,19 @@ class _CalendarState extends State<Calendar> {
                           DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
                           style: const TextStyle(fontSize: 16.0, color: Colors.green),
                         ),
-                        Text(
-                          _bibleList,
-                          style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                        FutureBuilder(
+                            future: getBibleList(_focusedDay),
+                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                              if(snapshot.hasData == false){
+                                return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
+                              }
+                              else{
+                                return Text(
+                                  snapshot.data.toString(),
+                                  style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                                );
+                              }
+                            }
                         ),
                         Container(
 
@@ -235,6 +255,7 @@ class _CalendarState extends State<Calendar> {
                             },
                           ),
                         ),
+
                       ],
                     ),
                   ),
