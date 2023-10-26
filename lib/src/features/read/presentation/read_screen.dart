@@ -57,7 +57,8 @@ class _CalendarState extends State<Calendar> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   String _bibleList = 'test';
-  late List<dynamic> _bibleContents;
+  List<Widget> _bibleContents = [];
+
   @override
   void dispose() {
     _selectedEvents.dispose();
@@ -65,46 +66,13 @@ class _CalendarState extends State<Calendar> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  void initState () {
+    super.initState ();
+    getBibleContentsList(_focusedDay);
 
   }
 
-  @override
-  void setState(VoidCallback fn) {
-    // TODO: implement setState
-
-    super.setState(fn);
-  }
-
-
-  @override
-  void didUpdateWidget(covariant Calendar oldWidget) {
-    // TODO: implement didUpdateWidget
-
-    print('init');
-    rootBundle.loadString('assets/json/bible-RNKSV.json').then((reponse){
-      Map<String, dynamic> _bibleJson = json.decode(reponse);
-      String bibleList = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["chapter"];
-      _bibleList = bibleList;
-      _bibleContents = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["contents"];
-    });
-    print(_bibleList);
-    super.didUpdateWidget(oldWidget);
-  }
-
-  Future<String> getBibleList (DateTime day) async {
-    print("getBibleList" + "m"+day.month.toString() + "d" + day.day.toString());
-    final jsonString = await rootBundle.loadString('assets/json/bible-RNKSV.json');
-    Map<String, dynamic> _bibleJson = json.decode(jsonString);
-    String bibleList = _bibleJson["m"+day.month.toString() + "d" + day.day.toString()]["chapter"];
-    //setState(() { _bibleList = bibleList; }) ;
-    _bibleList = bibleList;
-    _bibleContents = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["contents"];
-    print('2');
-    return _bibleList;
-  }
+  //caledar 기본
   List<Event> _getEventsForDay(DateTime day) {
     // Implementation example
     return kEvents[day] ?? [];
@@ -121,12 +89,31 @@ class _CalendarState extends State<Calendar> {
       _focusedDay = focusedDay;
       _selectedDays.clear();
       _readDays.forEach((element) {_selectedDays.add(element);});
-
     });
     getBibleList(_focusedDay);
+    getBibleContentsList(_focusedDay);
     _selectedEvents.value = _getEventsForDays(_selectedDays);
   }
-  List<Widget> getBiblePageList(){
+  //caledar 기본
+  Future<String> getBibleList (DateTime day) async {
+    //read json
+    final jsonString = await rootBundle.loadString('assets/json/bible-RNKSV.json');
+    Map<String, dynamic> _bibleJson = json.decode(jsonString);
+    String bibleList = _bibleJson["m"+day.month.toString() + "d" + day.day.toString()]["chapter"];
+    //setState(() { _bibleList = bibleList; }) ;
+    _bibleList = bibleList;
+    print('2');
+    return _bibleList;
+  }
+  Future<List<Widget>> getBibleContentsList (DateTime day) async {
+
+    //read json
+    final jsonString = await rootBundle.loadString('assets/json/bible-RNKSV.json');
+    Map<String, dynamic> _bibleJson = json.decode(jsonString);
+    List<dynamic> bibleContentsJson = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["contents"];
+
+    print('11');
+    //calendar page
     final List<Widget> biblePageList= [
       Container(
         child: Column(
@@ -198,101 +185,160 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
             SizedBox(height: 10,),
-            Card(
+            InkWell(
+                child:Card(
 
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 3,
-                  color: Colors.deepPurple, //<-- SEE HERE
-                ),
-                borderRadius: BorderRadius.circular(20.0),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 3,
+                        color: Colors.deepPurple, //<-- SEE HERE
+                      ),
+                      borderRadius: BorderRadius.circular(20.0),
 
-              ),
-              margin: EdgeInsets.all(0),
-              child: Container(
-
-                padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
-                width:double.infinity,
-                child: Column(
-                  children: [
-                    Text(
-                      DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
-                      style: const TextStyle(fontSize: 16.0, color: Colors.green),
                     ),
-                    FutureBuilder(
-                        future: getBibleList(_focusedDay),
-                        builder: (BuildContext context, AsyncSnapshot snapshot) {
-                          if(snapshot.hasData == false){
-                            return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
-                          }
-                          else{
-                            return Text(
-                              snapshot.data.toString(),
-                              style: const TextStyle(fontSize: 24.0, color: Colors.green),
-                            );
-                          }
-                        }
-                    ),
-                    Container(
+                    margin: EdgeInsets.all(0),
+                    child: Container(
 
-                      child: TextButton(
-                        child:Text('읽으러가기'),
-                        onPressed: (){
-                          setState(() {
-                            _readDays.add(_focusedDay);
-                            _selectedDays.clear();
-                            _readDays.forEach((element) {_selectedDays.add(element);});
-                          });
-                        },
+                      padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
+                      width:double.infinity,
+                      child: Column(
+                        children: [
+                          Text(
+                            DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
+                            style: const TextStyle(fontSize: 16.0, color: Colors.green),
+                          ),
+                          FutureBuilder(
+                              future: getBibleList(_focusedDay),
+                              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                                if(snapshot.hasData == false){
+                                  return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
+                                }
+                                else{
+                                  return Text(
+                                    snapshot.data.toString(),
+                                    style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                                  );
+                                }
+                              }
+                          ),
+                          Container(
+
+                            child: TextButton(
+                              child:Text('읽으러가기'),
+                              onPressed: (){
+                                _controller.nextPage();
+                              },
+                            ),
+                          ),
+
+                        ],
                       ),
                     ),
 
-                  ],
-                ),
-              ),
+                  ),
 
+                onTap: (){
+                  _controller.nextPage();
+                  },
             ),
-
-
 
           ],
         ),
       ),
-
     ];
-    List<Widget> bibleScript = _bibleContents.map((item) =>
+
+    //bible script page
+    for(int i = 0 ; i < bibleContentsJson.length ; i++){
+      List<Widget> tmp = [];
+        for(int j = 0 ; j < bibleContentsJson[i]["paragraphs"].length ; j++){
+          tmp.add(
+              Text(
+                  bibleContentsJson[i]["paragraphs"][j]["title"],
+                  style: TextStyle(
+                      height: 2,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold
+                  ),
+            )
+          );
+          tmp.add(SizedBox(height: 10,));
+          for(int k = 0 ; k < bibleContentsJson[i]["paragraphs"][j]["verses"].length ; k++){
+            tmp.add(
+                Text(
+                    bibleContentsJson[i]["paragraphs"][j]["verses"][k]["index"] + ". " + bibleContentsJson[i]["paragraphs"][j]["verses"][k]["content"],
+                    style: TextStyle(
+                        height: 1.5,
+                        fontSize: 16,
+                    ),
+
+                )
+            );
+            tmp.add(SizedBox(height: 10,));
+          }
+        }
+      biblePageList.add(Padding(
+        padding: const EdgeInsets.fromLTRB(15,10,15,10),
+        child: ListView(children: tmp,),
+      ));
+    }
+    List<Widget> bibleScript = bibleContentsJson.map((item) =>
         Container(
-          child: Column(
+          child: ListView(
             children: [
               Text(item["chapter_name"]),
+              for( int i = 0 ; i < item["paragraphs"].length ; i++)
+                Text(item["paragraphs"][i]["title"]),
+              for( int i = 0 ; i < item["paragraphs"].length ; i++)
+                for( int j = 0 ; j < item["paragraphs"][i]["verses"].length ; j++)
+                  Text(item["paragraphs"][i]["verses"][j]["index"] + ". " + item["paragraphs"][i]["verses"][j]["content"]),
             ],
           ),
         )
     ).toList();
-    biblePageList.addAll(bibleScript);
+
+    //biblePageList.addAll(tmp);
+    _bibleContents = biblePageList;
+
     return biblePageList;
   }
+  final CarouselController _controller = CarouselController();
 
   @override
   Widget build(BuildContext context) {
-
-    final Color kDarkBlueColor = const Color(0xFF053149);
-    print(_bibleList);
-
     final double height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Card(
-        child: CarouselSlider(
-          options: CarouselOptions(
-            height: height,
-            viewportFraction: 1.0,
-            enlargeCenterPage: false,
-            // autoPlay: false,
-          ),
-          items: getBiblePageList()
-        )
-      ),
-    );
+    return
+      FutureBuilder(
+          future: getBibleContentsList(_focusedDay),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if(snapshot.hasData == false){
+              return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
+            }
+            else{
+              return
+                Container(
+                  color: Colors.transparent,
+                  key:UniqueKey(),
+                  child: Scaffold(
+                    body: Card(
+                      child: CarouselSlider(
+                          carouselController:_controller,
+                          options: CarouselOptions(
+                            enableInfiniteScroll:false,
+                            height: height,
+                            viewportFraction: 1.0,
+                            enlargeCenterPage: false,
+                          // autoPlay: false,
+                        ),
+                          items: _bibleContents
+                      )
+                  ),
+                ),
+              );
+            }
+          }
+      );
+
+
   }
 }
 
