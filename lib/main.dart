@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:starter_architecture_flutter_firebase/firebase_options.dart';
 import 'package:starter_architecture_flutter_firebase/src/app.dart';
+import 'package:starter_architecture_flutter_firebase/src/features/read/data/read_repository.dart';
 import 'package:starter_architecture_flutter_firebase/src/localization/string_hardcoded.dart';
 import 'package:starter_architecture_flutter_firebase/src/features/onboarding/data/onboarding_repository.dart';
 // ignore:depend_on_referenced_packages
@@ -27,6 +28,9 @@ Future<void> main() async {
     overrides: [
       onboardingRepositoryProvider.overrideWithValue(
         OnboardingRepository(sharedPreferences),
+      ),
+      readRepositoryProvider.overrideWithValue(
+        ReadRepository(sharedPreferences),
       ),
     ],
   );

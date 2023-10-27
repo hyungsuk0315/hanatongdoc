@@ -5,74 +5,45 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:starter_architecture_flutter_firebase/src/features/read/presentation/read_controller.dart';
 import 'package:starter_architecture_flutter_firebase/src/features/read/presentation/utils.dart';
 import '../../../common_widgets/action_text_button.dart';
 import '../../../constants/strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../data/read_repository.dart';
-
 final today = DateUtils.dateOnly(DateTime.now());
-
-class ReadScreen extends ConsumerWidget{
-    const ReadScreen({super.key});
+class ReadScreen extends StatefulWidget {
+  const ReadScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
+  State<ReadScreen> createState() => _ReadScreenState();
+}
 
-    final state = ref.watch(readControllerProvider);
-    final readRepository = ref.watch(readRepositoryProvider);
-    // final userInfo = {
-    //   "ReadFontSize" : readRepository.getReadFontSize()
-    // };
+class _ReadScreenState extends State<ReadScreen> {
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Strings.read),
-      ),
+          title: const Text(Strings.read),
+        ),
       body: Calendar(),
     );
   }
 }
 
-// class ReadScreen extends StatefulWidget {
-//   const ReadScreen({super.key});
-//
-//   @override
-//   State<ReadScreen> createState() => _ReadScreenState();
-// }
-//
-// class _ReadScreenState extends State<ReadScreen> {
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//           title: const Text(Strings.read),
-//         ),
-//       body: Calendar(),
-//     );
-//   }
-// }
-
 class Calendar extends StatefulWidget {
-
-
   const Calendar({super.key});
-
 
   @override
   State<Calendar> createState() => _CalendarState();
 }
 
-class _CalendarState extends State<Calendar>  {
+class _CalendarState extends State<Calendar> {
 
   final ValueNotifier<List<Event>> _selectedEvents = ValueNotifier([]);
   final Set<DateTime> _selectedDays = LinkedHashSet<DateTime>(
@@ -334,7 +305,6 @@ class _CalendarState extends State<Calendar>  {
 
   @override
   Widget build(BuildContext context) {
-
     final double height = MediaQuery.of(context).size.height;
     return
       FutureBuilder(

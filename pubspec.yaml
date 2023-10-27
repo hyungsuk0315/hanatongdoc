@@ -32,6 +32,7 @@ dependencies:
   table_calendar: ^3.0.9
   flutter_onboarding_slider: ^1.0.11
   carousel_slider: ^4.2.1
+  riverpod_generator: ^2.3.3
 
 dev_dependencies:
   flutter_test:
@@ -40,11 +41,10 @@ dev_dependencies:
   random_string: ^2.3.1
   flutter_lints: ^2.0.3
   # a tool for running code generators
-  build_runner: 2.4.6
+  build_runner: ^2.4.6
   # the code generator
-  riverpod_generator: 2.3.3
   # riverpod_lint makes it easier to work with Riverpod
-  riverpod_lint: 2.1.1
+  riverpod_lint: ^2.3.2
   # import custom_lint too as riverpod_lint depends on it
   custom_lint: 0.5.3
 

@@ -1,27 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_providers.dart';
+part of 'read_repository.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authProvidersHash() => r'70c22c875d246f0d1a6e0acf349eecb2b86f6a60';
+String _$readRepositoryHash() => r'a49cfeb3156cf93cbb2b288e701a3a1a6a7e3ea1';
 
-/// See also [authProviders].
-@ProviderFor(authProviders)
-final authProvidersProvider =
-    Provider<List<AuthProvider<AuthListener, AuthCredential>>>.internal(
-  authProviders,
-  name: r'authProvidersProvider',
+/// See also [readRepository].
+@ProviderFor(readRepository)
+final readRepositoryProvider = Provider<ReadRepository>.internal(
+  readRepository,
+  name: r'readRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$authProvidersHash,
+      : _$readRepositoryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef AuthProvidersRef
-    = ProviderRef<List<AuthProvider<AuthListener, AuthCredential>>>;
+typedef ReadRepositoryRef = ProviderRef<ReadRepository>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
