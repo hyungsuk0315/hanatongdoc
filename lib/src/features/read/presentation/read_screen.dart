@@ -25,19 +25,37 @@ class ReadScreen extends ConsumerWidget{
     const ReadScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref)  {
     // TODO: implement build
 
     final state = ref.watch(readControllerProvider);
     final readRepository = ref.watch(readRepositoryProvider);
+    int _userFontSize = readRepository.getReadFontSize();
+
     // final userInfo = {
     //   "ReadFontSize" : readRepository.getReadFontSize()
     // };
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(Strings.read),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () async{
+              await ref.read(readControllerProvider.notifier).clickFontPlus();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.remove),
+            onPressed: () async{
+              await ref.read(readControllerProvider.notifier).clickFontMinus();
+            },
+          )
+        ],
       ),
-      body: Calendar(),
+      body: Calendar(_userFontSize),
     );
   }
 }
@@ -64,8 +82,11 @@ class ReadScreen extends ConsumerWidget{
 
 class Calendar extends StatefulWidget {
 
-
-  const Calendar({super.key});
+  final int userFontSize;
+  const Calendar(
+       this.userFontSize,
+      {super.key}
+      );
 
 
   @override
@@ -73,6 +94,22 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar>  {
+
+  @override
+  void dispose() {
+    _selectedEvents.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState () {
+    print("init");
+    super.initState ();
+    //getBibleContentsList(_focusedDay);
+    int _userFontSize = widget.userFontSize ;
+
+    print(widget.userFontSize);
+  }
 
   final ValueNotifier<List<Event>> _selectedEvents = ValueNotifier([]);
   final Set<DateTime> _selectedDays = LinkedHashSet<DateTime>(
@@ -87,20 +124,7 @@ class _CalendarState extends State<Calendar>  {
   DateTime _focusedDay = DateTime.now();
   String _bibleList = 'test';
   List<Widget> _bibleContents = [];
-
-  @override
-  void dispose() {
-    _selectedEvents.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState () {
-    super.initState ();
-    getBibleContentsList(_focusedDay);
-
-  }
-
+  final int _userFontSize = 16;
   //caledar 기본
   List<Event> _getEventsForDay(DateTime day) {
     // Implementation example
@@ -141,7 +165,8 @@ class _CalendarState extends State<Calendar>  {
     Map<String, dynamic> _bibleJson = json.decode(jsonString);
     List<dynamic> bibleContentsJson = _bibleJson["m"+_focusedDay.month.toString() + "d" + _focusedDay.day.toString()]["contents"];
 
-    print('11');
+
+    print("userFontSize : ${widget.userFontSize}");
     //calendar page
     final List<Widget> biblePageList= [
       Container(
@@ -163,8 +188,8 @@ class _CalendarState extends State<Calendar>  {
                   titleTextFormatter: (date, locale) =>
                       DateFormat.yMMMM(locale).format(date),
                   formatButtonVisible: false,
-                  titleTextStyle: const TextStyle(
-                    fontSize: 20.0,
+                  titleTextStyle:  const TextStyle(
+                    fontSize: 16,
                     color: Colors.cyan,
                   ),
                   headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -234,7 +259,10 @@ class _CalendarState extends State<Calendar>  {
                         children: [
                           Text(
                             DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
-                            style: const TextStyle(fontSize: 16.0, color: Colors.green),
+                            style:  TextStyle(
+                                fontSize:widget.userFontSize.toDouble(),
+                                color: Colors.green
+                            ),
                           ),
                           FutureBuilder(
                               future: getBibleList(_focusedDay),
@@ -245,7 +273,10 @@ class _CalendarState extends State<Calendar>  {
                                 else{
                                   return Text(
                                     snapshot.data.toString(),
-                                    style: const TextStyle(fontSize: 24.0, color: Colors.green),
+                                    style: TextStyle(
+                                        fontSize:widget.userFontSize.toDouble() * 1.5,
+                                        color: Colors.green
+                                    ),
                                   );
                                 }
                               }
@@ -253,7 +284,12 @@ class _CalendarState extends State<Calendar>  {
                           Container(
 
                             child: TextButton(
-                              child:Text('읽으러가기'),
+                              child:Text(
+                                '읽으러가기',
+                                style: TextStyle(
+                                    fontSize:widget.userFontSize.toDouble() * 0.8,
+                                ),
+                              ),
                               onPressed: (){
                                 _controller.nextPage();
                               },
@@ -285,7 +321,7 @@ class _CalendarState extends State<Calendar>  {
                   bibleContentsJson[i]["paragraphs"][j]["title"],
                   style: TextStyle(
                       height: 2,
-                      fontSize: 20,
+                      fontSize: widget.userFontSize.toDouble() * 1.5,
                       fontWeight: FontWeight.bold
                   ),
             )
@@ -297,7 +333,7 @@ class _CalendarState extends State<Calendar>  {
                     bibleContentsJson[i]["paragraphs"][j]["verses"][k]["index"] + ". " + bibleContentsJson[i]["paragraphs"][j]["verses"][k]["content"],
                     style: TextStyle(
                         height: 1.5,
-                        fontSize: 16,
+                        fontSize: widget.userFontSize.toDouble(),
                     ),
 
                 )
@@ -314,12 +350,21 @@ class _CalendarState extends State<Calendar>  {
         Container(
           child: ListView(
             children: [
-              Text(item["chapter_name"]),
+              Text(
+                  item["chapter_name"]
+
+              ),
               for( int i = 0 ; i < item["paragraphs"].length ; i++)
-                Text(item["paragraphs"][i]["title"]),
+                Text(
+                    item["paragraphs"][i]["title"]
+
+                ),
               for( int i = 0 ; i < item["paragraphs"].length ; i++)
                 for( int j = 0 ; j < item["paragraphs"][i]["verses"].length ; j++)
-                  Text(item["paragraphs"][i]["verses"][j]["index"] + ". " + item["paragraphs"][i]["verses"][j]["content"]),
+                  Text(
+                      item["paragraphs"][i]["verses"][j]["index"] + ". " + item["paragraphs"][i]["verses"][j]["content"]
+
+                  ),
             ],
           ),
         )
@@ -336,6 +381,7 @@ class _CalendarState extends State<Calendar>  {
   Widget build(BuildContext context) {
 
     final double height = MediaQuery.of(context).size.height;
+    final int f = widget.userFontSize;
     return
       FutureBuilder(
           future: getBibleContentsList(_focusedDay),

@@ -24,4 +24,8 @@ class ReadController extends _$ReadController {
     state = const AsyncLoading();
     state = await AsyncValue.guard(readRepository.fontSizeDown);
   }
+  Future<int> loadFontsize() async {
+    final readRepository = ref.watch(readRepositoryProvider);
+    return readRepository.getReadFontSize();
+  }
 }
