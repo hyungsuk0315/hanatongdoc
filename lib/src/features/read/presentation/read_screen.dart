@@ -20,7 +20,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../data/read_repository.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
-final isSelected = <bool>[false, false, false];
+ List<bool> isSelected = <bool>[false, false, false];
 class ReadScreen extends ConsumerWidget{
     const ReadScreen({super.key});
 
@@ -31,11 +31,16 @@ class ReadScreen extends ConsumerWidget{
     final state = ref.watch(readControllerProvider);
     final readRepository = ref.watch(readRepositoryProvider);
     int _userFontSize = readRepository.getReadFontSize();
+    int _userReadNumber = readRepository.getReadNumber();
 
     // final userInfo = {
     //   "ReadFontSize" : readRepository.getReadFontSize()
     // };
-
+    Future<List<bool>> _getSelectedNumber(num) async {
+      List<bool> tmp = [false,false,false];
+      tmp[num] = true;
+      return tmp;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -72,24 +77,24 @@ class ReadScreen extends ConsumerWidget{
                                   color: Colors.cyan,
                                 ),
                             ),
-                            TextButton(
-                                onPressed: ()async{
-                                  await ref.read(readControllerProvider.notifier).setReadNumber(1);
-                                },
-                                child: Text('1독')
-                            ),
-                            TextButton(
-                                onPressed: ()async{
-                                  await ref.read(readControllerProvider.notifier).setReadNumber(1);
-                                },
-                                child: Text('2독')
-                            ),
-                            TextButton(
-                                onPressed: ()async{
-                                  await ref.read(readControllerProvider.notifier).setReadNumber(1);
-                                },
-                                child: Text('3독')
-                            ),
+                            // TextButton(
+                            //     onPressed: ()async{
+                            //       await ref.read(readControllerProvider.notifier).setReadNumber(1);
+                            //     },
+                            //     child: Text('1독')
+                            // ),
+                            // TextButton(
+                            //     onPressed: ()async{
+                            //       await ref.read(readControllerProvider.notifier).setReadNumber(1);
+                            //     },
+                            //     child: Text('2독')
+                            // ),
+                            // TextButton(
+                            //     onPressed: ()async{
+                            //       await ref.read(readControllerProvider.notifier).setReadNumber(1);
+                            //     },
+                            //     child: Text('3독')
+                            // ),
                             ToggleButtons(
                               color: Colors.black.withOpacity(0.60),
                               selectedColor: Color(0xFF6200EE),
@@ -100,16 +105,18 @@ class ReadScreen extends ConsumerWidget{
                               borderRadius: BorderRadius.circular(4.0),
                               constraints: BoxConstraints(minHeight: 36.0),
                               isSelected: isSelected,
-                              onPressed: (index) async{
-                                                                      
-                                },
+                              onPressed: (index)async{
+                                await ref.read(readControllerProvider.notifier).setReadNumber(index);
+                                isSelected = <bool>[false, false, false];
+                                isSelected[index] = true;
+                              },
                               children: [
                                 Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                  child: Text('BUTTON 1'), ),
+                                  child: Text('1독'), ),
                                 Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                  child: Text('BUTTON 2'), ),
+                                  child: Text('2독'), ),
                                 Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                  child: Text('BUTTON 3'),
+                                  child: Text('3독'),
                                 ),
                               ],
                             )
@@ -238,6 +245,7 @@ class _CalendarState extends State<Calendar>  {
     getBibleContentsList(_focusedDay);
     _selectedEvents.value = _getEventsForDays(_selectedDays);
   }
+
   //caledar 기본
   Future<String> getBibleList (DateTime day) async {
     //read json
@@ -379,6 +387,7 @@ class _CalendarState extends State<Calendar>  {
                                 '읽으러가기',
                                 style: TextStyle(
                                     fontSize:widget.userFontSize.toDouble() * 0.8,
+                                  color: Colors.grey
                                 ),
                               ),
                               onPressed: (){

@@ -34,6 +34,6 @@ class ReadController extends _$ReadController {
   }
   Future<int> getReadNumber() async {
     final readRepository = ref.watch(readRepositoryProvider);
-    return readRepository.getReadNumberSize();
+    return readRepository.getReadNumber();
   }
 }

@@ -11,7 +11,7 @@ class ReadRepository {
   static const readNumberKey = "readnumber";
 
   int getReadFontSize() => sharedPreferences.getInt(readFontSizeKey) ?? 16;
-  int getReadNumberSize() => sharedPreferences.getInt(readNumberKey) ?? 1;
+  int getReadNumber() => sharedPreferences.getInt(readNumberKey) ?? 1;
   Future<void> fontSizeUp() async {
     await sharedPreferences.setInt(readFontSizeKey, getReadFontSize() + 1);
   }
