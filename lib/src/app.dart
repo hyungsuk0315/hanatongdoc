@@ -86,6 +86,11 @@ class MyApp extends ConsumerWidget {
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
           ),
         ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          )
+        )
       ),
       debugShowCheckedModeBanner: false,
     );

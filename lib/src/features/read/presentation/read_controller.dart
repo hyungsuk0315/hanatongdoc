@@ -28,4 +28,12 @@ class ReadController extends _$ReadController {
     final readRepository = ref.watch(readRepositoryProvider);
     return readRepository.getReadFontSize();
   }
+  Future<void> setReadNumber(num) async {
+    final readRepository = ref.watch(readRepositoryProvider);
+    readRepository.setReadNumber(num);
+  }
+  Future<int> getReadNumber() async {
+    final readRepository = ref.watch(readRepositoryProvider);
+    return readRepository.getReadNumberSize();
+  }
 }

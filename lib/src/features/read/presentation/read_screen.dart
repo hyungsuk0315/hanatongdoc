@@ -20,7 +20,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../data/read_repository.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
-
+final isSelected = <bool>[false, false, false];
 class ReadScreen extends ConsumerWidget{
     const ReadScreen({super.key});
 
@@ -41,6 +41,96 @@ class ReadScreen extends ConsumerWidget{
       appBar: AppBar(
         title: const Text(Strings.read),
         actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () async{
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  // return object of type Dialog
+                  return AlertDialog(
+                    backgroundColor: Colors.deepPurple,
+                    title:  Container(
+
+                        alignment: Alignment.center,
+                        child: Text(
+                          "설정",
+                          style:TextStyle(
+                          fontSize: 32,
+                          color: Colors.cyan,
+                          ),
+                        )
+                    ),
+                    content: Container(
+
+                        child: Row(
+                          children: [
+                            Text(
+                                "통독 플랜",
+                                style:TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.cyan,
+                                ),
+                            ),
+                            TextButton(
+                                onPressed: ()async{
+                                  await ref.read(readControllerProvider.notifier).setReadNumber(1);
+                                },
+                                child: Text('1독')
+                            ),
+                            TextButton(
+                                onPressed: ()async{
+                                  await ref.read(readControllerProvider.notifier).setReadNumber(1);
+                                },
+                                child: Text('2독')
+                            ),
+                            TextButton(
+                                onPressed: ()async{
+                                  await ref.read(readControllerProvider.notifier).setReadNumber(1);
+                                },
+                                child: Text('3독')
+                            ),
+                            ToggleButtons(
+                              color: Colors.black.withOpacity(0.60),
+                              selectedColor: Color(0xFF6200EE),
+                              selectedBorderColor: Color(0xFF6200EE),
+                              fillColor: Color(0xFF6200EE).withOpacity(0.08),
+                              splashColor: Color(0xFF6200EE).withOpacity(0.12),
+                              hoverColor: Color(0xFF6200EE).withOpacity(0.04),
+                              borderRadius: BorderRadius.circular(4.0),
+                              constraints: BoxConstraints(minHeight: 36.0),
+                              isSelected: isSelected,
+                              onPressed: (index) async{
+                                                                      
+                                },
+                              children: [
+                                Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: Text('BUTTON 1'), ),
+                                Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: Text('BUTTON 2'), ),
+                                Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: Text('BUTTON 3'),
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                        
+                    ),
+                    actions: <Widget>[
+                      // usually buttons at the bottom of the dialog
+                      new TextButton(
+                        child: new Text("Close"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async{
@@ -125,6 +215,7 @@ class _CalendarState extends State<Calendar>  {
   String _bibleList = 'test';
   List<Widget> _bibleContents = [];
   final int _userFontSize = 16;
+  int initIndex =0 ;
   //caledar 기본
   List<Event> _getEventsForDay(DateTime day) {
     // Implementation example
@@ -260,7 +351,7 @@ class _CalendarState extends State<Calendar>  {
                           Text(
                             DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
                             style:  TextStyle(
-                                fontSize:widget.userFontSize.toDouble(),
+                                fontSize:16,
                                 color: Colors.green
                             ),
                           ),
@@ -274,7 +365,7 @@ class _CalendarState extends State<Calendar>  {
                                   return Text(
                                     snapshot.data.toString(),
                                     style: TextStyle(
-                                        fontSize:widget.userFontSize.toDouble() * 1.5,
+                                        fontSize:20,
                                         color: Colors.green
                                     ),
                                   );
@@ -343,7 +434,10 @@ class _CalendarState extends State<Calendar>  {
         }
       biblePageList.add(Padding(
         padding: const EdgeInsets.fromLTRB(15,10,15,10),
-        child: ListView(children: tmp,),
+        child: ListView(
+          children: tmp,
+        
+        ),
       ));
     }
     List<Widget> bibleScript = bibleContentsJson.map((item) =>
@@ -376,7 +470,13 @@ class _CalendarState extends State<Calendar>  {
     return biblePageList;
   }
   final CarouselController _controller = CarouselController();
-
+  _onPageViewChange(int page) {
+    print("Current Page: " + page.toString());
+    int previousPage = page;
+    if(page != 0) previousPage--;
+    else previousPage = 2;
+    print("Previous page: $previousPage");
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -397,8 +497,15 @@ class _CalendarState extends State<Calendar>  {
                   child: Scaffold(
                     body: Card(
                       child: CarouselSlider(
+
                           carouselController:_controller,
                           options: CarouselOptions(
+                            initialPage: initIndex,
+                            onPageChanged:(index, reason){
+                              setState(() {
+                                initIndex = index;
+                              });
+                            },
                             enableInfiniteScroll:false,
                             height: height,
                             viewportFraction: 1.0,
@@ -406,6 +513,7 @@ class _CalendarState extends State<Calendar>  {
                           // autoPlay: false,
                         ),
                           items: _bibleContents
+                          
                       )
                   ),
                 ),
