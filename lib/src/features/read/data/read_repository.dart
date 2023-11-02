@@ -19,7 +19,7 @@ class ReadRepository {
     await sharedPreferences.setInt(readFontSizeKey, getReadFontSize() - 1);
   }
   Future<void> setReadNumber(num) async {
-    await sharedPreferences.setInt(readNumberKey, num);
+    await sharedPreferences.setInt(readNumberKey, num );
   }
 
 }
