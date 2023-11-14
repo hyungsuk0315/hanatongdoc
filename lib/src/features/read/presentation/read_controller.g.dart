@@ -6,7 +6,7 @@ part of 'read_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$readControllerHash() => r'c24e7c0833d7928bb53c393f2e30541c4223ec45';
+String _$readControllerHash() => r'b323e19c196d48bc3140f50af8d02c298fc7c544';
 
 /// See also [ReadController].
 @ProviderFor(ReadController)

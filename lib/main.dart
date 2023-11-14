@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ Future<void> main() async {
   // turn off the # in the URLs on the web
   usePathUrlStrategy();
   final sharedPreferences = await SharedPreferences.getInstance();
+  final firebaseFirestores = FirebaseFirestore.instance;
   // * Register error handlers. For more info, see:
   // * https://docs.flutter.dev/testing/errors
   registerErrorHandlers();
@@ -30,7 +32,7 @@ Future<void> main() async {
         OnboardingRepository(sharedPreferences),
       ),
       readRepositoryProvider.overrideWithValue(
-        ReadRepository(sharedPreferences),
+        ReadRepository(sharedPreferences,firebaseFirestores),
       ),
     ],
   );

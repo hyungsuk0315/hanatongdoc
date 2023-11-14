@@ -13,10 +13,12 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:starter_architecture_flutter_firebase/src/features/read/presentation/read_controller.dart';
 import 'package:starter_architecture_flutter_firebase/src/features/read/presentation/utils.dart';
+import 'package:starter_architecture_flutter_firebase/src/utils/async_value_ui.dart';
 import '../../../common_widgets/action_text_button.dart';
 import '../../../constants/strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../authentication/data/firebase_auth_repository.dart';
 import '../data/read_repository.dart';
 
 final today = DateUtils.dateOnly(DateTime.now());
@@ -49,8 +51,11 @@ class ReadScreenConsumerState extends ConsumerState<ReadScreen>{
 
     final state = ref.watch(readControllerProvider);
     final readRepository = ref.watch(readRepositoryProvider);
+    final currentUser = ref.read(authRepositoryProvider).currentUser;
     int _userFontSize = readRepository.getReadFontSize();
     int _userReadNumber = readRepository.getReadNumber();
+    String _userUid = readRepository.getUserUid(currentUser!.uid);
+    Future<String> _userReadDate = readRepository.getReadDate(uid: _userUid);
     List<bool> isSelected = [ true, false, false];
     // final userInfo = {
     //   "ReadFontSize" : readRepository.getReadFontSize()
@@ -182,7 +187,7 @@ class ReadScreenConsumerState extends ConsumerState<ReadScreen>{
                       )
                     ],
                   ),
-                  body: Calendar(_userFontSize, _userReadNumber),
+                  body: Calendar(_userFontSize, _userReadNumber, _userReadDate),
                 );
 
 
@@ -191,17 +196,15 @@ class ReadScreenConsumerState extends ConsumerState<ReadScreen>{
 
   }
 }
-
-
-
-
 class Calendar extends StatefulWidget {
 
   final int userFontSize;
   final int userReadNumber;
+  final Future<String> _userReadDate;
+
   const Calendar(
        this.userFontSize,
-        this.userReadNumber,
+        this.userReadNumber, this._userReadDate,
       {super.key}
       );
 
@@ -221,6 +224,7 @@ class _CalendarState extends State<Calendar>  {
   @override
   void initState () {
     super.initState ();
+
     //getBibleContentsList(_focusedDay);
   }
 
@@ -313,6 +317,9 @@ class _CalendarState extends State<Calendar>  {
   //   print('2');
   //   return _bibleList;
   // }
+  Future<String> getUserReadDates() {
+    return widget._userReadDate;
+  }
   Future<List<Widget>> getBibleContentsList (DateTime day) async {
 
     //read json
@@ -341,146 +348,203 @@ class _CalendarState extends State<Calendar>  {
     final List<Widget> biblePageList= [
       Container(
         child: Column(
-          children: [
-            Card(
-              margin: EdgeInsets.all(0),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.grey, //<-- SEE HERE
-                ),  //모서리를 둥글게 하기 위해 사용
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child : TableCalendar<Event>(
-                sixWeekMonthsEnforced : true,
-                // 추가
-                headerStyle: HeaderStyle(
-                  titleCentered: true,
-                  titleTextFormatter: (date, locale) =>
-                      DateFormat.yMMMM(locale).format(date),
-                  formatButtonVisible: false,
-                  titleTextStyle:  const TextStyle(
-                    fontSize: 16,
-                    color: Colors.cyan,
-                  ),
-                  headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
-                  leftChevronIcon: const Icon(
-                    Icons.arrow_left,
-                    size: 40.0,
-                  ),
-                  rightChevronIcon: const Icon(
-                    Icons.arrow_right,
-                    size: 40.0,
-                  ),
-                ),
-                locale: 'ko_KR',
-                rowHeight: 40,
-                daysOfWeekHeight: 19,
-                calendarStyle: const CalendarStyle(
-                    isTodayHighlighted:false,
-                    markerDecoration: BoxDecoration(color:  Colors.deepPurpleAccent, shape: BoxShape.circle),
-                    selectedDecoration: BoxDecoration(color:  Colors.cyan, shape: BoxShape.circle)
-                ),
-                firstDay: kFirstDay,
-                lastDay: kLastDay,
-                focusedDay: _focusedDay,
-                eventLoader: (day) {
-                  if(day.year == _focusedDay.year && day.month == _focusedDay.month && day.day == _focusedDay.day) {
-                    return [const Event('Cyclic event')];
-                  }
-                  return [];
-                },
-                calendarFormat: _calendarFormat,
-                startingDayOfWeek: StartingDayOfWeek.monday,
-                selectedDayPredicate: (day) {
-                  // Use values from Set to mark multiple days as selected
-                  return _selectedDays.contains(day);
-                },
-                onDaySelected: _onDaySelected,
-                onFormatChanged: (format) {
-                  if (_calendarFormat != format) {
-                    setState(() {
-                      _calendarFormat = format;
-                    });
-                  }
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
-                },
-              ),
-            ),
-            SizedBox(height: 10,),
-            InkWell(
-                child:Card(
-
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        width: 3,
-                        color: Colors.deepPurple, //<-- SEE HERE
-                      ),
-                      borderRadius: BorderRadius.circular(20.0),
-
-                    ),
-                    margin: EdgeInsets.all(0),
-                    child: Container(
-
-                      padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
-                      width:double.infinity,
-                      child: Column(
-                        children: [
-                          Text(
-                            DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
-                            style:  TextStyle(
-                                fontSize:16,
-                                color: Colors.green
-                            ),
-                          ),
-                          FutureBuilder(
-                              future: getBibleList(_focusedDay),
-                              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  children: [
+                    Consumer(
+                          builder: (context, ref, child) {
+                            ref.listen<AsyncValue>(
+                              readControllerProvider,
+                                  (_, state) =>
+                                  state.showAlertDialogOnError(context),
+                            );
+                            return FutureBuilder(
+                                future: ref.read(readControllerProvider.notifier).getRead(),
+                                builder: (BuildContext context, AsyncSnapshot snapshot) {
                                 if(snapshot.hasData == false){
                                   return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
                                 }
                                 else{
-                                  return Text(
-                                    snapshot.data.toString(),
-                                    style: TextStyle(
-                                        fontSize:20,
-                                        color: Colors.green
-                                    ),
+                                  _selectedDays.clear();
+                                  snapshot.data.forEach((element) {
+                                    _readDays.add(element);
+                                  });
+                                  _readDays.forEach((element) {
+                                    _selectedDays.add(element);
+                                  });
+                                  return Card(
+                                      margin: EdgeInsets.all(0),
+                                      shape: RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Colors.grey, //<-- SEE HERE
+                                        ), //모서리를 둥글게 하기 위해 사용
+                                        borderRadius: BorderRadius.circular(16.0),
+                                      ),
+                                      child: TableCalendar<Event>(
+                                        sixWeekMonthsEnforced: true,
+                                        // 추가
+                                        headerStyle: HeaderStyle(
+                                          titleCentered: true,
+                                          titleTextFormatter: (date, locale) =>
+                                              DateFormat.yMMMM(locale).format(date),
+                                          formatButtonVisible: false,
+                                          titleTextStyle: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.cyan,
+                                          ),
+                                          headerPadding: const EdgeInsets.symmetric(
+                                              vertical: 4.0),
+                                          leftChevronIcon: const Icon(
+                                            Icons.arrow_left,
+                                            size: 40.0,
+                                          ),
+                                          rightChevronIcon: const Icon(
+                                            Icons.arrow_right,
+                                            size: 40.0,
+                                          ),
+                                        ),
+                                        locale: 'ko_KR',
+                                        rowHeight: 40,
+                                        daysOfWeekHeight: 19,
+                                        calendarStyle: const CalendarStyle(
+                                            isTodayHighlighted: false,
+                                            markerDecoration: BoxDecoration(
+                                                color: Colors.deepPurpleAccent,
+                                                shape: BoxShape.circle),
+                                            selectedDecoration: BoxDecoration(
+                                                color: Colors.cyan,
+                                                shape: BoxShape.circle)
+                                        ),
+                                        firstDay: kFirstDay,
+                                        lastDay: kLastDay,
+                                        focusedDay: _focusedDay,
+                                        eventLoader: (day) {
+                                          if (day.year == _focusedDay.year &&
+                                              day.month == _focusedDay.month &&
+                                              day.day == _focusedDay.day) {
+                                            return [const Event('Cyclic event')];
+                                          }
+                                          return [];
+                                        },
+                                        calendarFormat: _calendarFormat,
+                                        startingDayOfWeek: StartingDayOfWeek.monday,
+                                        selectedDayPredicate: (day) {
+                                          // Use values from Set to mark multiple days as selected
+
+
+                                          return _selectedDays.contains(day);
+                                        },
+                                        onDaySelected: (DateTime selectedDay,
+                                            DateTime focusedDay) async {
+                                          List<DateTime> dateTimeList = await ref
+                                              .read(readControllerProvider.notifier)
+                                              .getRead();
+                                          setState(() {
+                                            _focusedDay = focusedDay;
+                                            _selectedDays.clear();
+                                            dateTimeList.forEach((element) {
+                                              _readDays.add(element);
+                                            });
+                                            _readDays.forEach((element) {
+                                              _selectedDays.add(element);
+                                            });
+                                          });
+                                          getBibleList(_focusedDay);
+                                          getBibleContentsList(_focusedDay);
+                                          _selectedEvents.value =
+                                              _getEventsForDays(_selectedDays);
+                                        },
+                                        onFormatChanged: (format) {
+                                          if (_calendarFormat != format) {
+                                            setState(() {
+                                              _calendarFormat = format;
+                                            });
+                                          }
+                                        },
+                                        onPageChanged: (focusedDay) {
+                                          _focusedDay = focusedDay;
+                                        },
+                                      )
                                   );
                                 }
-                              }
-                          ),
-                          Container(
+                            });
 
-                            child: TextButton(
-                              child:Text(
-                                '읽으러가기',
-                                style: TextStyle(
-                                    fontSize:widget.userFontSize.toDouble() * 0.8,
-                                  color: Colors.grey
+
+                          }),
+
+                    SizedBox(height: 10,),
+                    InkWell(
+                      child:Card(
+
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            width: 3,
+                            color: Colors.deepPurple, //<-- SEE HERE
+                          ),
+                          borderRadius: BorderRadius.circular(20.0),
+
+                        ),
+                        margin: EdgeInsets.all(0),
+                        child: Container(
+
+                          padding: EdgeInsets.fromLTRB(0, 30, 0, 15),
+                          width:double.infinity,
+                          child: Column(
+                            children: [
+                              Text(
+                                DateFormat('yyyy년 MM월 dd일').format(_focusedDay),
+                                style:  TextStyle(
+                                    fontSize:16,
+                                    color: Colors.green
                                 ),
                               ),
-                              onPressed: (){
-                                _controller.nextPage();
-                              },
-                            ),
-                          ),
+                              FutureBuilder(
+                                  future: getBibleList(_focusedDay),
+                                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                                    if(snapshot.hasData == false){
+                                      return CircularProgressIndicator(); // CircularProgressIndicator : 로딩 에니메이션
+                                    }
+                                    else{
+                                      return Text(
+                                        snapshot.data.toString(),
+                                        style: TextStyle(
+                                            fontSize:20,
+                                            color: Colors.green
+                                        ),
+                                      );
+                                    }
+                                  }
+                              ),
+                              Container(
 
-                        ],
+                                child: TextButton(
+                                  child:Text(
+                                    '읽으러가기',
+                                    style: TextStyle(
+                                        fontSize:widget.userFontSize.toDouble() * 0.8,
+                                        color: Colors.grey
+                                    ),
+                                  ),
+                                  onPressed: (){
+                                    _controller.nextPage();
+                                  },
+                                ),
+                              ),
+
+                            ],
+                          ),
+                        ),
+
                       ),
+
+                      onTap: (){
+                        _controller.nextPage();
+                      },
                     ),
 
-                  ),
+                  ],
+                )
 
-                onTap: (){
-                  _controller.nextPage();
-                  },
-            ),
-
-          ],
-        ),
       ),
+
     ];
 
     //bible script page
@@ -556,6 +620,28 @@ class _CalendarState extends State<Calendar>  {
           ),
         )
     ).toList();
+    final Widget lastPage = Container(
+      child: Consumer(
+        builder: (context, ref, child){
+          ref.listen<AsyncValue>(
+            readControllerProvider,
+                (_, state) => state.showAlertDialogOnError(context),
+          );
+          return Container(
+            child: Column(
+              children: [
+                OutlinedButton(onPressed: (){
+                  ref.read(readControllerProvider.notifier).addRead("2023/11/14");
+                  },
+                    child: Text('sdfsf'))
+              ],
+            ),
+          );
+        },
+      ),
+    );
+
+    biblePageList.add(lastPage);
 
     //biblePageList.addAll(tmp);
     _bibleContents = biblePageList;
