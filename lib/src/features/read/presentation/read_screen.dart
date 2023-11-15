@@ -72,19 +72,29 @@ class ReadScreenConsumerState extends ConsumerState<ReadScreen>{
     print("read number : ${_userReadNumber}");
     return StatefulBuilder(
         builder: (__, StateSetter setState) {
+
           return Scaffold(
                   appBar: AppBar(
                     title: const Text(Strings.read),
                     actions: [
                       IconButton(
                         icon: Icon(Icons.settings),
-                        onPressed: () {
+                        onPressed: ()   {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               // return object of type Dialog
                               print("alertdialog rendering - ${isSelected}");
-                              return AlertDialog(
+                              isSelected = _getSelectedNumber(readRepository.getReadNumber() - 1);
+                              return PopScope(
+                                  onPopInvoked: (b){
+                                    print("pop {$b}");
+                                    setState(() {
+                                      _userReadNumber = readRepository.getReadNumber();
+                                    });
+
+                                    },
+                                  child: AlertDialog(
 
                                 backgroundColor: Colors.deepPurple,
                                 title:  Container(
@@ -99,62 +109,62 @@ class ReadScreenConsumerState extends ConsumerState<ReadScreen>{
                                     )
                                 ),
                                 content: StatefulBuilder(
-                                  builder: (__, StateSetter setState) {
-                                    return Container(
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              "통독 플랜",
-                                              style:TextStyle(
-                                                fontSize: 16,
-                                                color:Colors.cyan,
+                                    builder: (__, StateSetter setState) {
+                                      return Container(
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "통독 플랜",
+                                                style:TextStyle(
+                                                  fontSize: 16,
+                                                  color:Colors.cyan,
+                                                ),
                                               ),
-                                            ),
-                                            ToggleButtons(
-                                              borderColor: Colors.transparent,
-                                              color: Colors.black.withOpacity(0.60),
-                                              selectedColor: Colors.cyan,
-                                              selectedBorderColor: Colors.transparent,
-                                              fillColor: Colors.transparent,
-                                              splashColor: Colors.cyan.withOpacity(0.12),
-                                              hoverColor: Colors.cyan.withOpacity(0.04),
-                                              //borderRadius: BorderRadius.circular(4.0),
-                                              constraints: BoxConstraints(minHeight: 36.0),
-                                              isSelected: isSelected,
-                                              onPressed: (int index)   {
-                                                ref.read(readControllerProvider.notifier).setReadNumber(index + 1);
-                                                setState(()  {
-                                                  for(int i = 0 ; i < isSelected.length ; i++){
-                                                    isSelected[i] = i == index;
-                                                  }
-                                                  _userReadNumber = readRepository.getReadNumber();
+                                              ToggleButtons(
+                                                borderColor: Colors.transparent,
+                                                color: Colors.black.withOpacity(0.60),
+                                                selectedColor: Colors.cyan,
+                                                selectedBorderColor: Colors.transparent,
+                                                fillColor: Colors.transparent,
+                                                splashColor: Colors.cyan.withOpacity(0.12),
+                                                hoverColor: Colors.cyan.withOpacity(0.04),
+                                                //borderRadius: BorderRadius.circular(4.0),
+                                                constraints: BoxConstraints(minHeight: 36.0),
+                                                isSelected: isSelected,
+                                                onPressed: (int index)   {
+                                                  ref.read(readControllerProvider.notifier).setReadNumber(index + 1);
+                                                  setState(()  {
+                                                    for(int i = 0 ; i < isSelected.length ; i++){
+                                                      isSelected[i] = i == index;
+                                                    }
+                                                    _userReadNumber = readRepository.getReadNumber();
 
-                                                });
-                                              },
-                                              children: [
-                                                Container(
-                                                  child: Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                                    child: Text('1독'), ),
+                                                  });
+                                                },
+                                                children: [
+                                                  Container(
+                                                    child: Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                                      child: Text('1독'), ),
 
-                                                ),
-                                                Container(
-                                                  child: Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                                    child: Text('2독'), ),
-
-                                                ),
-                                                Container(
-                                                  child: Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                                    child: Text('3독'),
                                                   ),
+                                                  Container(
+                                                    child: Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                                      child: Text('2독'), ),
 
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        )
+                                                  ),
+                                                  Container(
+                                                    child: Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                                      child: Text('3독'),
+                                                    ),
 
-                                    );
-                                  }
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          )
+
+                                      );
+                                    }
                                 ),
                                 actions: <Widget>[
                                   // usually buttons at the bottom of the dialog
@@ -168,7 +178,8 @@ class ReadScreenConsumerState extends ConsumerState<ReadScreen>{
                                     },
                                   ),
                                 ],
-                              );
+                              ) );
+                                ;
                             },
                           );
                         },
