@@ -374,6 +374,7 @@ class _CalendarState extends State<Calendar>  {
                                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                                 if(snapshot.hasData != false){
                                   _selectedDays.clear();
+                                  _readDays.clear();
                                   snapshot.data.forEach((element) {
                                     _readDays.add(element);
                                   });
@@ -644,7 +645,7 @@ class _CalendarState extends State<Calendar>  {
             child: Column(
               children: [
 
-                OutlinedButton(onPressed: () async{
+                IconButton(onPressed: () async{
                   String userDate = await widget._userReadDate;
                   print("userDate $userDate");
                   List<DateTime> dateTimeList = [];
@@ -671,8 +672,11 @@ class _CalendarState extends State<Calendar>  {
                     print("delete read Date");
                     String userReadDates = "";
                     DateTime foDate = DateTime(_focusedDay.year, _focusedDay.month, _focusedDay.day);
-                    _selectedDays.remove(foDate);
-                    dateTimeList.remove(foDate);
+                    setState(() {
+                      _selectedDays.remove(foDate);
+                      dateTimeList.remove(foDate);
+
+                    });
                     dateTimeList.forEach((element) {userReadDates += DateFormat('yyyy/MM/dd,').format(element); });
                     if(userReadDates.length > 1)
                       userReadDates = userReadDates.substring(0, userReadDates.length - 1);
@@ -684,16 +688,25 @@ class _CalendarState extends State<Calendar>  {
                   }
                   else{
                     String userReadDates = "";
-                    dateTimeList.add(_focusedDay);
+                    setState(() {
+                      _selectedDays.add(_focusedDay);
+                      dateTimeList.add(_focusedDay);
+
+                    });
                     dateTimeList.forEach((element) {userReadDates += DateFormat('yyyy/MM/dd,').format(element); });
                     userReadDates = userReadDates.substring(0, userReadDates.length - 1);
+
                     print("add read dates to firestore : {$userReadDates}");
                     ref.read(readControllerProvider.notifier).addRead(userReadDates);
 
                   }
-                  _controller.jumpToPage(0);
+
                   },
-                    child: _selectedDays.contains(_focusedDay)? Text('읽음 취소'):Text('읽음')
+                    icon: _selectedDays.contains(_focusedDay)?
+                    Icon(Icons.check_box_outline_blank_rounded,
+                    size: 100,):
+                    Icon(Icons.check_box_rounded,
+                    size:100)
                     )
               ],
             ),
