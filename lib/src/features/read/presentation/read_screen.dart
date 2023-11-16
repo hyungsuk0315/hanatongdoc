@@ -703,9 +703,9 @@ class _CalendarState extends State<Calendar>  {
 
                   },
                     icon: _selectedDays.contains(_focusedDay)?
-                    Icon(Icons.check_box_outline_blank_rounded,
-                    size: 100,):
                     Icon(Icons.check_box_rounded,
+                    size: 100,):
+                    Icon(Icons.check_box_outline_blank_rounded,
                     size:100)
                     )
               ],
