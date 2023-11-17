@@ -25,9 +25,6 @@ final today = DateUtils.dateOnly(DateTime.now());
  List<bool> isSelected = <bool>[false, false, false];
 
 
-
-
-
 class ReadScreen extends ConsumerStatefulWidget {
 
 
@@ -645,6 +642,8 @@ class _CalendarState extends State<Calendar>  {
             child: Column(
               children: [
 
+
+
                 IconButton(onPressed: () async{
                   String userDate = await widget._userReadDate;
                   print("userDate $userDate");
@@ -781,140 +780,5 @@ class _CalendarState extends State<Calendar>  {
 
 
 
-// class ReadScreen extends ConsumerWidget{
-//   const ReadScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref)  {
-//     // TODO: implement build
-//
-//     final state = ref.watch(readControllerProvider);
-//     final readRepository = ref.watch(readRepositoryProvider);
-//     int _userFontSize = readRepository.getReadFontSize();
-//     int _userReadNumber = readRepository.getReadNumber();
-//
-//     // final userInfo = {
-//     //   "ReadFontSize" : readRepository.getReadFontSize()
-//     // };
-//     Future<List<bool>> _getSelectedNumber(num) async {
-//       List<bool> tmp = [false,false,false];
-//       tmp[num] = true;
-//       return tmp;
-//     }
-//
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(Strings.read),
-//         actions: [
-//           IconButton(
-//             icon: Icon(Icons.settings),
-//             onPressed: () async{
-//               showDialog(
-//                 context: context,
-//                 builder: (BuildContext context) {
-//                   // return object of type Dialog
-//                   return AlertDialog(
-//                     backgroundColor: Colors.deepPurple,
-//                     title:  Container(
-//
-//                         alignment: Alignment.center,
-//                         child: Text(
-//                           "설정",
-//                           style:TextStyle(
-//                             fontSize: 32,
-//                             color: Colors.cyan,
-//                           ),
-//                         )
-//                     ),
-//                     content: Container(
-//
-//                         child: Row(
-//                           children: [
-//                             Text(
-//                               "통독 플랜",
-//                               style:TextStyle(
-//                                 fontSize: 20,
-//                                 color: Colors.cyan,
-//                               ),
-//                             ),
-//                             // TextButton(
-//                             //     onPressed: ()async{
-//                             //       await ref.read(readControllerProvider.notifier).setReadNumber(1);
-//                             //     },
-//                             //     child: Text('1독')
-//                             // ),
-//                             // TextButton(
-//                             //     onPressed: ()async{
-//                             //       await ref.read(readControllerProvider.notifier).setReadNumber(1);
-//                             //     },
-//                             //     child: Text('2독')
-//                             // ),
-//                             // TextButton(
-//                             //     onPressed: ()async{
-//                             //       await ref.read(readControllerProvider.notifier).setReadNumber(1);
-//                             //     },
-//                             //     child: Text('3독')
-//                             // ),
-//                             ToggleButtons(
-//                               color: Colors.black.withOpacity(0.60),
-//                               selectedColor: Color(0xFF6200EE),
-//                               selectedBorderColor: Color(0xFF6200EE),
-//                               fillColor: Color(0xFF6200EE).withOpacity(0.08),
-//                               splashColor: Color(0xFF6200EE).withOpacity(0.12),
-//                               hoverColor: Color(0xFF6200EE).withOpacity(0.04),
-//                               borderRadius: BorderRadius.circular(4.0),
-//                               constraints: BoxConstraints(minHeight: 36.0),
-//                               isSelected: isSelected,
-//                               onPressed: (index)async{
-//                                 await ref.read(readControllerProvider.notifier).setReadNumber(index);
-//                                 isSelected = <bool>[false, false, false];
-//                                 isSelected[index] = true;
-//                               },
-//                               children: [
-//                                 Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-//                                   child: Text('1독'), ),
-//                                 Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-//                                   child: Text('2독'), ),
-//                                 Padding( padding: EdgeInsets.symmetric(horizontal: 16.0),
-//                                   child: Text('3독'),
-//                                 ),
-//                               ],
-//                             )
-//                           ],
-//                         )
-//
-//                     ),
-//                     actions: <Widget>[
-//                       // usually buttons at the bottom of the dialog
-//                       new TextButton(
-//                         child: new Text("Close"),
-//                         onPressed: () {
-//                           Navigator.of(context).pop();
-//                         },
-//                       ),
-//                     ],
-//                   );
-//                 },
-//               );
-//             },
-//           ),
-//           IconButton(
-//             icon: Icon(Icons.add),
-//             onPressed: () async{
-//               await ref.read(readControllerProvider.notifier).clickFontPlus();
-//             },
-//           ),
-//           IconButton(
-//             icon: Icon(Icons.remove),
-//             onPressed: () async{
-//               await ref.read(readControllerProvider.notifier).clickFontMinus();
-//             },
-//           )
-//         ],
-//       ),
-//       body: Calendar(_userFontSize),
-//     );
-//   }
-// }
 
 
