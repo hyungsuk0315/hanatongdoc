@@ -17,6 +17,7 @@ import 'package:starter_architecture_flutter_firebase/src/utils/async_value_ui.d
 import '../../../common_widgets/action_text_button.dart';
 import '../../../constants/strings.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../authentication/data/firebase_auth_repository.dart';
 import '../data/read_repository.dart';
@@ -622,10 +623,11 @@ class _CalendarState extends State<Calendar>  {
                 ),
               for( int i = 0 ; i < item["paragraphs"].length ; i++)
                 for( int j = 0 ; j < item["paragraphs"][i]["verses"].length ; j++)
-                  Text(
+                    Text(
                       item["paragraphs"][i]["verses"][j]["index"] + ". " + item["paragraphs"][i]["verses"][j]["content"]
+                      ),
 
-                  ),
+
             ],
           ),
         )
@@ -637,76 +639,237 @@ class _CalendarState extends State<Calendar>  {
             readControllerProvider,
                 (_, state) => state.showAlertDialogOnError(context),
           );
-          print(_selectedDays);
+          print(_selectedDays.length/365*100);
+          Color _iconColor = _selectedDays.contains(_focusedDay)?Colors.cyan:Colors.grey;
+          Color _buttonBackColor =  _selectedDays.contains(_focusedDay)?Colors.cyan:Colors.grey;
+          String _buttonString = _selectedDays.contains(_focusedDay)? "오늘의 통독 완료": "오늘의 통독 완료 하기";
           return Container(
             child: Column(
               children: [
+                SizedBox(height: 10,),
+                Container(
+                    child: Column(
+                      children: [
+                        Consumer(
+                            builder: (context, ref, child) {
+                              ref.listen<AsyncValue>(
+                                readControllerProvider,
+                                    (_, state) =>
+                                    state.showAlertDialogOnError(context),
+                              );
+                              return FutureBuilder(
+                                  future: ref.read(readControllerProvider.notifier).getRead(),
+                                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                                    if(snapshot.hasData != false){
+                                      _selectedDays.clear();
+                                      _readDays.clear();
+                                      snapshot.data.forEach((element) {
+                                        _readDays.add(element);
+                                      });
+                                      print(" _readDays : $_readDays");
+                                      _readDays.forEach((element) {
+                                        _selectedDays.add(element);
+                                      }); // CircularProgressIndicator : 로딩 에니메이션
+                                    }
+
+                                    return Card(
+                                        margin: EdgeInsets.all(0),
+                                        shape: RoundedRectangleBorder(
+                                          side: BorderSide(
+                                            color: Colors.grey, //<-- SEE HERE
+                                          ), //모서리를 둥글게 하기 위해 사용
+                                          borderRadius: BorderRadius.circular(16.0),
+                                        ),
+                                        child: TableCalendar<Event>(
+                                          sixWeekMonthsEnforced: true,
+                                          // 추가
+                                          headerStyle: HeaderStyle(
+                                            titleCentered: true,
+                                            titleTextFormatter: (date, locale) =>
+                                                DateFormat.yMMMM(locale).format(date),
+                                            formatButtonVisible: false,
+                                            titleTextStyle: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.cyan,
+                                            ),
+                                            headerPadding: const EdgeInsets.symmetric(
+                                                vertical: 4.0),
+                                            leftChevronIcon: const Icon(
+                                              Icons.arrow_left,
+                                              size: 40.0,
+                                            ),
+                                            rightChevronIcon: const Icon(
+                                              Icons.arrow_right,
+                                              size: 40.0,
+                                            ),
+                                          ),
+                                          locale: 'ko_KR',
+                                          rowHeight: 40,
+                                          daysOfWeekHeight: 19,
+                                          calendarStyle: const CalendarStyle(
+                                              isTodayHighlighted: false,
+                                              markerDecoration: BoxDecoration(
+                                                  color: Colors.deepPurpleAccent,
+                                                  shape: BoxShape.circle),
+                                              selectedDecoration: BoxDecoration(
+                                                  color: Colors.cyan,
+                                                  shape: BoxShape.circle)
+                                          ),
+                                          firstDay: kFirstDay,
+                                          lastDay: kLastDay,
+                                          focusedDay: _focusedDay,
+                                          eventLoader: (day) {
+                                            if (day.year == _focusedDay.year &&
+                                                day.month == _focusedDay.month &&
+                                                day.day == _focusedDay.day) {
+                                              return [const Event('Cyclic event')];
+                                            }
+                                            return [];
+                                          },
+                                          calendarFormat: _calendarFormat,
+                                          startingDayOfWeek: StartingDayOfWeek.monday,
+                                          selectedDayPredicate: (day) {
+                                            // Use values from Set to mark multiple days as selected
 
 
-
-                IconButton(onPressed: () async{
-                  String userDate = await widget._userReadDate;
-                  print("userDate $userDate");
-                  List<DateTime> dateTimeList = [];
-                  if(userDate.length > 1){
-                    List<String> userDateList = userDate.split(',');
-                    for(var i = 0 ; i < userDateList.length ; i ++)
-                    {
-                      List<String> tmp = userDateList[i].split('/');
-                      int yy = int.parse(tmp[0]);
-                      int MM = int.parse(tmp[1]);
-                      int dd = int.parse(tmp[2]);
-                      dateTimeList.add(DateTime(yy,MM,dd));
-                    }
-
-                  }
-                  print("datetimelist $dateTimeList");
-                  print("_focusedDay $_focusedDay");
-                  bool redundant = false;
-                  for(var i = 0 ; i < dateTimeList.length ; i++){
-                    if(DateFormat('yyyy/MM/dd,').format(dateTimeList[i]) == DateFormat('yyyy/MM/dd,').format(_focusedDay))
-                      redundant = true;
-                  }
-                  if(redundant){
-                    print("delete read Date");
-                    String userReadDates = "";
-                    DateTime foDate = DateTime(_focusedDay.year, _focusedDay.month, _focusedDay.day);
-                    setState(() {
-                      _selectedDays.remove(foDate);
-                      dateTimeList.remove(foDate);
-
-                    });
-                    dateTimeList.forEach((element) {userReadDates += DateFormat('yyyy/MM/dd,').format(element); });
-                    if(userReadDates.length > 1)
-                      userReadDates = userReadDates.substring(0, userReadDates.length - 1);
-                    print("_selectedDays : {$_selectedDays}");
-                    print("add read dates to firestore : {$userReadDates}");
+                                            return _selectedDays.contains(day);
+                                          },
+                                          onDaySelected: (DateTime selectedDay,
+                                              DateTime focusedDay) async {
+                                            List<DateTime> dateTimeList = await ref
+                                                .read(readControllerProvider.notifier)
+                                                .getRead();
+                                            setState(() {
+                                              _focusedDay = focusedDay;
+                                              _selectedDays.clear();
+                                              dateTimeList.forEach((element) {
+                                                _readDays.add(element);
+                                              });
+                                              _readDays.forEach((element) {
+                                                _selectedDays.add(element);
+                                              });
+                                            });
+                                            getBibleList(_focusedDay);
+                                            getBibleContentsList(_focusedDay);
+                                            _selectedEvents.value =
+                                                _getEventsForDays(_selectedDays);
+                                          },
+                                          onFormatChanged: (format) {
+                                            if (_calendarFormat != format) {
+                                              setState(() {
+                                                _calendarFormat = format;
+                                              });
+                                            }
+                                          },
+                                          onPageChanged: (focusedDay) {
+                                            _focusedDay = focusedDay;
+                                          },
+                                        )
+                                    );
+                                  });
 
 
-                    ref.read(readControllerProvider.notifier).addRead(userReadDates);
-                  }
-                  else{
-                    String userReadDates = "";
-                    setState(() {
-                      _selectedDays.add(_focusedDay);
-                      dateTimeList.add(_focusedDay);
+                            }),
 
-                    });
-                    dateTimeList.forEach((element) {userReadDates += DateFormat('yyyy/MM/dd,').format(element); });
-                    userReadDates = userReadDates.substring(0, userReadDates.length - 1);
-
-                    print("add read dates to firestore : {$userReadDates}");
-                    ref.read(readControllerProvider.notifier).addRead(userReadDates);
-
-                  }
-
-                  },
-                    icon: _selectedDays.contains(_focusedDay)?
-                    Icon(Icons.check_box_rounded,
-                    size: 100,):
-                    Icon(Icons.check_box_outline_blank_rounded,
-                    size:100)
+                      ],
                     )
+
+                ),
+                SizedBox(height: 10,),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  child: LinearPercentIndicator(
+                    animation: true,
+                    lineHeight: 30.0,
+                    animationDuration: 1500,
+                    percent: (_selectedDays.length/365),
+                    center: Text("${(_selectedDays.length/365*100).toStringAsFixed(2)} %"),
+                    linearStrokeCap: LinearStrokeCap.roundAll,
+                    progressColor: Colors.green,
+                  ),
+                ),
+                SizedBox(height: 10,),
+                OutlinedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll<Color>(_buttonBackColor),
+                  ),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Text(
+                          "$_buttonString",
+                          textAlign: TextAlign.center,
+                      ),
+                    ),
+                    onPressed: () async{
+                      String userDate = await widget._userReadDate;
+                      print("userDate $userDate");
+                      List<DateTime> dateTimeList = [];
+                      if(userDate.length > 1){
+                        List<String> userDateList = userDate.split(',');
+                        for(var i = 0 ; i < userDateList.length ; i ++)
+                        {
+                          List<String> tmp = userDateList[i].split('/');
+                          int yy = int.parse(tmp[0]);
+                          int MM = int.parse(tmp[1]);
+                          int dd = int.parse(tmp[2]);
+                          dateTimeList.add(DateTime(yy,MM,dd));
+                        }
+
+                      }
+                      print("datetimelist $dateTimeList");
+                      print("_focusedDay $_focusedDay");
+                      bool redundant = false;
+                      for(var i = 0 ; i < dateTimeList.length ; i++){
+                        if(DateFormat('yyyy/MM/dd,').format(dateTimeList[i]) == DateFormat('yyyy/MM/dd,').format(_focusedDay))
+                          redundant = true;
+                      }
+                      if(redundant){
+                        print("delete read Date");
+                        String userReadDates = "";
+                        DateTime foDate = DateTime(_focusedDay.year, _focusedDay.month, _focusedDay.day);
+                        setState(() {
+                          _selectedDays.remove(foDate);
+                          dateTimeList.remove(foDate);
+
+                        });
+                        dateTimeList.forEach((element) {userReadDates += DateFormat('yyyy/MM/dd,').format(element); });
+                        if(userReadDates.length > 1)
+                          userReadDates = userReadDates.substring(0, userReadDates.length - 1);
+                        print("_selectedDays : {$_selectedDays}");
+                        print("add read dates to firestore : {$userReadDates}");
+
+
+                        ref.read(readControllerProvider.notifier).addRead(userReadDates);
+                      }
+                      else{
+                        String userReadDates = "";
+                        setState(() {
+                          _selectedDays.add(_focusedDay);
+                          dateTimeList.add(_focusedDay);
+
+                        });
+                        dateTimeList.forEach((element) {userReadDates += DateFormat('yyyy/MM/dd,').format(element); });
+                        userReadDates = userReadDates.substring(0, userReadDates.length - 1);
+
+                        print("add read dates to firestore : {$userReadDates}");
+                        ref.read(readControllerProvider.notifier).addRead(userReadDates);
+
+                      }
+                    },
+                    // icon: Icon(
+                    //   Icons.check_box_rounded,
+                    //   size: 50,
+                    //   color: _iconColor,
+                    // )
+                ),
+                TextButton(
+
+                    onPressed: (){_controller.jumpToPage(0);},
+                    child: Text('맨 처음으로 이동하기',
+                    style:TextStyle(
+                      color: Colors.black54
+                    ))
+                )
               ],
             ),
           );
