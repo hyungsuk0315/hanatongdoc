@@ -588,14 +588,28 @@ class _CalendarState extends State<Calendar>  {
           }
           for(int k = 0 ; k < bibleContentsJson[i]["paragraphs"][j]["verses"].length ; k++){
             tmp.add(
-                Text(
+              TextButton(
+                  onPressed: (){},
+                  style:ButtonStyle(
+                    backgroundColor:
+                      MaterialStateProperty.resolveWith((Set<MaterialState> states){
+
+                      if(states.contains(MaterialState.pressed))
+                      {
+                        return Colors.green;
+                      }
+
+                    })
+                  ),
+                  child:Text(
                     bibleContentsJson[i]["paragraphs"][j]["verses"][k]["index"] + ". " + bibleContentsJson[i]["paragraphs"][j]["verses"][k]["content"],
                     style: TextStyle(
-                        height: 1.5,
-                        fontSize: widget.userFontSize.toDouble(),
+                      height: 1.5,
+                      fontSize: widget.userFontSize.toDouble(),
+                      color:Colors.black
                     ),
+                ))
 
-                )
             );
             tmp.add(SizedBox(height: 10,));
           }
