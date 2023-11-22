@@ -590,17 +590,6 @@ class _CalendarState extends State<Calendar>  {
             tmp.add(
               TextButton(
                   onPressed: (){},
-                  style:ButtonStyle(
-                    backgroundColor:
-                      MaterialStateProperty.resolveWith((Set<MaterialState> states){
-
-                      if(states.contains(MaterialState.pressed))
-                      {
-                        return Colors.green;
-                      }
-
-                    })
-                  ),
                   child:Text(
                     bibleContentsJson[i]["paragraphs"][j]["verses"][k]["index"] + ". " + bibleContentsJson[i]["paragraphs"][j]["verses"][k]["content"],
                     style: TextStyle(
@@ -878,7 +867,7 @@ class _CalendarState extends State<Calendar>  {
                 ),
                 TextButton(
 
-                    onPressed: (){_controller.jumpToPage(0);},
+                    onPressed: (){},
                     child: Text('맨 처음으로 이동하기',
                     style:TextStyle(
                       color: Colors.black54
